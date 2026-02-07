@@ -1,0 +1,16 @@
+<h1>Edit Listing</h1>
+
+<form action="/listings/<%= listing._id %>?_method=PUT" method="POST">
+
+    <input type="text" name="listing[title]" value="<%= listing.title %>">
+
+    <textarea name="listing[description]"><%= listing.description %></textarea>
+
+    <input type="number" name="listing[price]" value="<%= listing.price %>">
+
+    <input type="text" name="listing[location]" value="<%= listing.location %>">
+
+    <input type="text" name="listing[country]" value="<%= listing.country %>">
+
+    <button type="submit">Update</button>
+</form>
