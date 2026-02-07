@@ -25,18 +25,22 @@ router.get("/new", async (req, res) => {
 });
 
 // Create new listing
-router.post("/", upload.single("imageFile"), async (req, res) => {
+router.post("/", upload.array("images"), async (req, res) => {
 
     try {
         const listingData = req.body.listing;
 
         // Attach uploaded image if provided
-        if (req.file) {
-            listingData.image = {
-                url: `/uploads/${req.file.filename}`,
-                filename: req.file.filename
+        if(req.files){
+      newListing.images = req.files.map(f => ({
+         url: f.path,
+         filename: f.filename
+      }));
+   }
+        newListing.geometry = {
+            type: "Point",
+            coordinates: [77.1025,28.7041] // dummy coords for now
             };
-        }
         console.log("BODY:", req.body);
         console.log("FILE:", req.file);
         const newListing = new Listing(listingData);

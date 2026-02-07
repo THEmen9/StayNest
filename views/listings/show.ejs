@@ -1,21 +1,79 @@
-<h1>Listing Details</h1>
 
-<p><strong>Title:</strong> <%= listing.title %></p>
+<div class="container mt-4">
 
-<p><strong>Description:</strong> <%= listing.description %></p>
+<div class="card shadow-sm border-0">
+  <div class="card-body">
 
-<p><strong>Price:</strong> ₹ <%= listing.price %></p>
+    <h3 class="fw-semibold mb-3"><%= listing.title %></h3>
 
-<p><strong>Location:</strong> <%= listing.location %></p>
+    <div id="listingCarousel" class="carousel slide mb-3">
 
-<p><strong>Country:</strong> <%= listing.country %></p>
+  <div class="carousel-inner rounded">
 
-<br>
+    <% if(listing.image && listing.image.url){ %>
+      <div class="carousel-item active">
+        <img src="<%= listing.image.url %>" 
+             class="d-block w-100"
+             style="height:400px; object-fit:cover;">
+      </div>
+    <% } else { %>
+      <div class="carousel-item active">
+        <img src="https://via.placeholder.com/800x400"
+             class="d-block w-100">
+      </div>
+    <% } %>
 
-<button><a href="/listings">Back to Listings</a></button>
+  </div>
 
-<br>
+  <!-- controls -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
 
-<form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
-    <button type="submit">Delete</button>
-</form>
+  <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+
+</div>
+
+
+    <p class="text-muted"><%= listing.description %></p>
+
+    <p class="mb-1"><strong>Price:</strong> ₹ <%= listing.price %></p>
+    <p class="mb-1"><strong>Location:</strong> <%= listing.location %></p>
+    <p class="mb-3"><strong>Country:</strong> <%= listing.country %></p>
+
+    <div class="d-flex gap-2">
+        <a href="/listings" class="btn btn-outline-dark btn-sm">Back</a>
+
+        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+            <button class="btn btn-outline-danger btn-sm">Delete</button>
+        </form>
+    </div>
+
+  </div>
+</div>
+
+<div id="map" class="mt-4 rounded"></div>
+
+</div>
+
+
+<script>
+const coordinates = <%- JSON.stringify(
+   (listing.geometry && listing.geometry.coordinates)
+   ? listing.geometry.coordinates
+   : [77.1025,28.7041]
+) %>;
+
+const lat = coordinates[1];
+const lng = coordinates[0];
+
+const map = L.map('map').setView([lat, lng], 10);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+   maxZoom: 19,
+}).addTo(map);
+
+L.marker([lat, lng]).addTo(map);
+</script>

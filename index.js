@@ -18,6 +18,11 @@ app.use(methodOverride("_method"));
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use((req,res,next)=>{
+    res.locals.currPath = req.path;
+    next();
+});
+
 
 // Routes
 app.use("/listings", listingRoutes);
@@ -25,6 +30,19 @@ app.use("/listings", listingRoutes);
 app.get("/", (req, res) => {
     res.send("StayNest running");
 });
+
+app.get("/listings", async (req,res)=>{
+   let { search } = req.query;
+   let filter = {};
+
+   if(search){
+      filter.title = { $regex: search, $options: "i" };
+   }
+
+   let allListings = await Listing.find(filter);
+   res.render("listings/index",{allListings});
+});
+
 
 // Database connection
 async function connectDB() {

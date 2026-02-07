@@ -1,0 +1,39 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+
+    <a class="navbar-brand fw-bold" href="/listings">StayNest</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                 <a class="nav-link <%= currPath === '/listings' ? 'active fw-semibold' : '' %>" 
+                    href="/listings">
+                    Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/listings/new">Add Listing</a>
+            </li>
+        </ul>
+        
+        <form class="d-flex me-3" action="/listings" method="GET">
+        <input class="form-control form-control-sm" 
+                type="search" 
+                name="search" 
+                placeholder="Search stays...">
+        </form>
+
+        <div class="d-flex gap-2">
+            <a href="#" class="btn btn-outline-dark btn-sm">Login</a>
+            <a href="#" class="btn btn-dark btn-sm">Signup</a>
+        </div>
+
+    </div>
+
+  </div>
+</nav>

@@ -1,35 +1,60 @@
-<div class="container mt-4">
-    <h2 class="mb-4">All Listings</h2>
+<div class="container py-4">
 
-    <div class="row">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="mb-4">
+            <h2 class="fw-semibold">Explore Stays</h2>
+            <p class="text-muted small m-0">
+            Find places that feel like home</p>
+        </div>
+            <a href="/listings/new" class="btn btn-outline-dark btn-sm">
+            + New
+            </a>  
+        </div>
+
+    <div class="row g-4">
 
     <% allListings.forEach(listing => { %>
 
-        <div class="col-md-4 mb-4">+
+        <div class="col-lg-4 col-md-6">
 
-            <div class="card h-100 shadow-sm">
+            <div class="card listing-card h-100 border-0 shadow-sm">
 
-                <img src="<%= listing.image?.url || 'https://via.placeholder.com/400' %>"
-                     class="card-img-top"
-                     style="height:220px; object-fit:cover;">
+                <div class="img-wrapper">
+                    <img 
+                        src="<%= listing.image?.url || 'https://via.placeholder.com/400' %>"
+                        class="card-img-top">
+                </div>
 
-                <div class="card-body">
+                <div class="card-body d-flex flex-column">
 
-                    <h5 class="card-title"><%= listing.title %></h5>
+                    <h5 class="card-title fw-semibold">
+                        <%= listing.title %>
+                    </h5>
 
-                    <p class="card-text text-muted">
+                    <p class="text-muted mb-3">
                         ₹ <%= listing.price %>
                     </p>
 
-                    <a href="/listings/<%= listing._id %>" class="btn btn-primary btn-sm">View</a>
+                    <div class="mt-auto d-flex gap-2">
 
-                    <a href="/listings/<%= listing._id %>/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/listings/<%= listing._id %>" 
+                           class="btn btn-dark btn-sm flex-fill">
+                           View
+                        </a>
 
-                    <form action="/listings/<%= listing._id %>?_method=DELETE"
-                          method="POST"
-                          class="d-inline">
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+                        <a href="/listings/<%= listing._id %>/edit" 
+                           class="btn btn-outline-secondary btn-sm">
+                           Edit
+                        </a>
+
+                        <form action="/listings/<%= listing._id %>?_method=DELETE"
+                              method="POST">
+                            <button class="btn btn-outline-danger btn-sm">
+                                Delete
+                            </button>
+                        </form>
+
+                    </div>
 
                 </div>
 

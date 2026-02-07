@@ -9,10 +9,12 @@ const listingSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-     image:{
-        filename: String,
-        url: String,
-    },
+     images: [
+   {
+      url: String,
+      filename: String
+   }
+],
     price:{
         type: Number,
         required: true,
@@ -21,8 +23,20 @@ const listingSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    country:String
+    country:String,
+    geometry: {
+        type: {
+            type: String,
+            enum: ["Point"],
+        },
+        coordinates: {
+            type: [Number], // [lng, lat]
+        }
+    }
+    
 });
+
+
 
 const Listing = mongoose.model("Listing", listingSchema);
 
