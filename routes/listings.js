@@ -38,9 +38,9 @@ router.post("/", upload.array("images"), async (req, res) => {
       }));
    }
         newListing.geometry = {
-            type: "Point",
-            coordinates: [77.1025,28.7041] // dummy coords for now
-            };
+        type: "Point",
+        coordinates: [77.1025, 28.7041]
+    };
         console.log("BODY:", req.body);
         console.log("FILE:", req.file);
         const newListing = new Listing(listingData);
@@ -57,6 +57,7 @@ router.get("/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const listing = await Listing.findById(id);
+           console.log("IMAGES:", listing.images);
         res.render("listings/show.ejs", { listing });
     } catch (err) {
         console.log(err);

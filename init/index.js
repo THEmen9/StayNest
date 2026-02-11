@@ -16,9 +16,23 @@ mongoose.connect("mongodb://127.0.0.1:27017/staynest")
 .catch(err => console.log(err));
 
 async function importData() {
+
   try {
     await Listing.deleteMany({});
-    await Listing.insertMany(initData.data);
+    
+    const newData = initData.data.map(listing => {
+  if (listing.image) {
+    listing.images = [listing.image]; // convert single → array
+    delete listing.image;
+  }
+    listing.geometry = {
+        type: "Point",
+        coordinates: [77.1025, 28.7041] // Delhi test coords
+      };
+
+  return listing;
+});
+    await Listing.insertMany(newData);
     console.log("Listings imported successfully");
     process.exit(0);
   } catch (err) {

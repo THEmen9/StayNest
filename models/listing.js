@@ -9,7 +9,8 @@ const listingSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-     images: [
+
+    images: [
    {
       url: String,
       filename: String
@@ -24,15 +25,15 @@ const listingSchema = new mongoose.Schema({
         required: true,
     },
     country:String,
-    geometry: {
-        type: {
-            type: String,
-            enum: ["Point"],
-        },
-        coordinates: {
-            type: [Number], // [lng, lat]
-        }
-    }
+
+   geometry: {
+    type: {
+        type: String,
+        enum: ["Point"],
+        required: true
+    },
+     coordinates: [Number]
+}
     
 });
 
