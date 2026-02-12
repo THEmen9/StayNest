@@ -29,8 +29,31 @@
         </form>
 
         <div class="d-flex gap-2">
-            <a href="#" class="btn btn-outline-dark btn-sm">Login</a>
-            <a href="#" class="btn btn-dark btn-sm">Signup</a>
+            <div class="d-flex gap-2 align-items-center">
+
+                <% if(currentUser){ %>
+
+                    <span class="fw-semibold me-2">
+                        Hi, <%= currentUser.username %>
+                    </span>
+
+                    <% if(currentUser.role === "dev"){ %>
+                        <span class="badge bg-dark ms-2">DEV</span>
+                    <% } %>
+
+                    <a href="/logout" class="btn btn-outline-danger btn-sm">
+                        Logout
+                    </a>
+
+                <% } else { %>
+
+                    <a href="/login" class="btn btn-outline-dark btn-sm">Login</a>
+                    <a href="/signup" class="btn btn-dark btn-sm">Signup</a>
+
+                <% } %>
+
+            </div>
+
         </div>
 
     </div>

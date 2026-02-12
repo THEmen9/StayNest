@@ -1,16 +1,41 @@
-<h1>Edit Listing</h1>
 
-<form action="/listings/<%= listing._id %>?_method=PUT" method="POST">
 
-    <input type="text" name="listing[title]" value="<%= listing.title %>">
+<div class="row justify-content-center">
+   <div class="col-md-7 col-lg-6">
+      <div class="card shadow-sm p-4">
 
-    <textarea name="listing[description]"><%= listing.description %></textarea>
+         <h3 class="text-center mb-3">Edit Listing</h3>
 
-    <input type="number" name="listing[price]" value="<%= listing.price %>">
+        <form action="/listings/<%= listing._id %>?_method=PUT" method="POST">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="title" name="listing[title]" value="<%= listing.title %>" required>
+            </div>
 
-    <input type="text" name="listing[location]" value="<%= listing.location %>">
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="listing[description]" rows="4" required><%= listing.description %></textarea>
+            </div>
 
-    <input type="text" name="listing[country]" value="<%= listing.country %>">
+            <div class="mb-3">
+                <label for="price" class="form-label">Price</label>
+                <input type="number" class="form-control" id="price" name="listing[price]" value="<%= listing.price %>" required>
+            </div>
 
-    <button type="submit">Update</button>
-</form>
+            <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control" id="location" name="listing[location]" value="<%= listing.location %>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="country" class="form-label">Country</label>
+                <input type="text" class="form-control" id="country" name="listing[country]" value="<%= listing.country %>" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Update</button>
+        </form>    </div>
+   </div>
+</div>
+
+
+

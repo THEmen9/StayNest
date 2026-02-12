@@ -1,53 +1,53 @@
-<h1>Create New Listing</h1>
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm p-4">
+                    <h3 class="mb-3 text-center">Create New Listing</h3>
 
-<form action="/listings" method="POST" enctype="multipart/form-data">
+                        <form action="/listings" method="POST" enctype="multipart/form-data">
 
-    <label>Title</label>
-    <input type="text" name="listing[title]" required />
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input type="text" name="listing[title]" class="form-control" required>
+                            </div>
 
-    <br><br>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="listing[description]" class="form-control" required></textarea>
+                            </div>
 
-    <label>Image URL</label>
-    <input type="text" name="listing[image][url]" placeholder="Paste image link">
+                            <div class="mb-3">
+                                <label class="form-label">Price</label>
+                                <input type="number" name="listing[price]" class="form-control">
+                            </div>
 
-    <br><br>
+                            <div class="mb-3">
+                                <label class="form-label">Location</label>
+                                <input type="text"
+                                    name="listing[location]"
+                                    class="form-control"
+                                    placeholder="City, Country"
+                                    required>
+                            </div>
 
-    <label>Upload Photo</label>
-    <input type="file" name="imageFile">
+                            <div class="mb-3">
+                                <label class="form-label">Country</label>
+                                <input type="text" name="listing[country]" class="form-control">
+                            </div>
 
-    <br><br>
-    
-    <label>Description</label>
-    <textarea name="listing[description]" required></textarea>
+                            <div class="mb-3">
+                                <label class="form-label">Upload Images</label>
+                                <input type="text"
+                                    name="listing[image][url]"
+                                    class="form-control"
+                                    placeholder="Paste image link">
+                                <input type="file" name="images" multiple class="form-control">
+                            </div>
 
-    <br><br>
+                            <button class="btn btn-dark">Create</button>
 
-    <label>Price</label>
-    <input type="number" name="listing[price]" />
-
-    <br><br>
-    <div class="mb-3">
-    <label class="form-label">Upload Images</label>
-    <input type="file" 
-            name="images" 
-            multiple 
-            class="form-control">
+                        </form>
+                    </div>
+            </div>
+        </div>
     </div>
-    
-    <label>Location</label>
-    <input type="text" name="listing[location]" />
-    <input type="text" 
-          name="listing[location]" 
-          class="form-control" 
-          placeholder="City, Country"
-          required>
-    <br><br>
-
-    <label>Country</label>
-    <input type="text" name="listing[country]" />
-
-    <br><br>
-
-    <button type="submit">Create</button>
-
-</form>
+</div>

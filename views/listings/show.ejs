@@ -1,4 +1,5 @@
 
+
 <div class="container mt-4">
 
 <div class="card shadow-sm border-0">
@@ -10,28 +11,33 @@
 
 <div class="carousel-inner rounded">
 
-  <% if(listing.images && listing.images.length > 0){ %>
+ <% if(listing.images && listing.images.length){ %>
 
-  <% listing.images.forEach((img, index) => { %>
-    <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-      <img src="<%= img.url %>" class="d-block w-100" style="height:400px; object-fit:cover;">
-    </div>
-  <% }) %>
+<div id="listingCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
 
-  <% } else if(listing.image && listing.image.url){ %>
+    <% listing.images.forEach((img, index) => { %>
+      <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+        <img src="<%= img.url.startsWith('http') ? img.url : '/' + img.url %>"
+             class="d-block w-100 rounded"
+             style="height:450px; object-fit:cover;">
+      </div>
+    <% }) %>
 
-    <!-- OLD DATA SUPPORT -->
-    <div class="carousel-item active">
-      <img src="<%= listing.image.url %>" class="d-block w-100" style="height:400px; object-fit:cover;">
-    </div>
+  </div>
 
-  <% } else { %>
-
-    <div class="carousel-item active">
-      <img src="https://via.placeholder.com/800x400" class="d-block w-100">
-    </div>
-
+  <% if(listing.images.length > 1){ %>
+    <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
   <% } %>
+</div>
+
+<% } %>
+
 
 </div>
 
@@ -53,11 +59,23 @@
     <p class="mb-3"><strong>Country:</strong> <%= listing.country %></p>
 
     <div class="d-flex gap-2">
-        <a href="/listings" class="btn btn-outline-dark btn-sm">Back</a>
+        <!-- <a href="/listings" class="btn btn-outline-dark btn-sm">Back</a> -->
+       <% if(
+            currentUser &&
+            listing.owner &&
+            (listing.owner.toString() === currentUser._id.toString() ||
+              currentUser.role === "dev")
+          ){ %>
 
-        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
-            <button class="btn btn-outline-danger btn-sm">Delete</button>
-        </form>
+            <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark">Edit</a>
+
+            <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+                <button class="btn btn-danger">Delete</button>
+            </form>
+
+      <% } %>
+
+
     </div>
 
   </div>
@@ -71,18 +89,24 @@
 
 
 <script>
-  const coordinates = <%- JSON.stringify(listing.geometry.coordinates) %>;
+    const listing = <%- JSON.stringify(listing) %>;
 
-  const map = L.map('map').setView([coordinates[1], coordinates[0]], 9);
+    const coords = [
+        listing.geometry.coordinates[1], // lat
+        listing.geometry.coordinates[0]  // lng
+    ];
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+    const map = L.map('map').setView(coords, 10);
 
-  L.marker([coordinates[1], coordinates[0]])
-    .addTo(map)
-    .bindPopup("<%= listing.title %>")
-    .openPopup();
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    L.marker(coords)
+        .addTo(map)
+        .bindPopup(`<b>${listing.title}</b><br>${listing.location}`)
+        .openPopup();
 </script>
+
 
 <script src="/js/map.js"></script>

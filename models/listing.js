@@ -33,8 +33,13 @@ const listingSchema = new mongoose.Schema({
         required: true
     },
      coordinates: [Number]
-}
-    
+    },
+
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
+
 });
 
 
