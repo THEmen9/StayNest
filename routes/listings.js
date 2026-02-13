@@ -37,10 +37,17 @@ router.get("/new",isLoggedIn, async (req, res) => {
 });
 
 // Create new listing
-router.post("/",isLoggedIn, upload.array("images"), async (req, res) => {
+router.post("/",isLoggedIn, upload.fields([
+  { name: "images", maxCount: 10 },
+  { name: "ownershipProof", maxCount: 1 }
+])
+, async (req, res) => {
     try {
-        console.log("FILES:", req.files);
         const listingData = req.body.listing;
+
+      /* ===== CREATE LISTING FIRST ===== */
+      const newListing = new Listing(listingData);
+      newListing.owner = req.user._id;
 
         //  free geocoding
         const response = await fetch(
@@ -48,54 +55,57 @@ router.post("/",isLoggedIn, upload.array("images"), async (req, res) => {
         );
         const data = await response.json();
 
-        //  create first
-        const newListing = new Listing(listingData);
-        newListing.owner = req.user._id;
-
-        // Images
-        newListing.images = [];
-
-        // uploads
-        if (req.files && req.files.length > 0) {
-            newListing.images = req.files.map(f => ({
-                url: "uploads/" + f.filename,
-                filename: f.filename
-            }));
-        }
-        // image Url
-        if (listingData.image && listingData.image.url) {
-            newListing.images.push({
-                url: listingData.image.url,
-                filename: "link-image"
-            });
-        }
-
-        // Geometry after creation
+        if(data && data.length){
         newListing.geometry = {
-            type: "Point",
-            coordinates: [
-                data[0].lon,
-                data[0].lat
-            ]
+          type:"Point",
+          coordinates:[ data[0].lon, data[0].lat ]
         };
+      }
 
-        await newListing.save();
-        res.redirect("/listings");
+         /* ===== IMAGES ===== */
+      const imageFiles = req.files["images"];
 
-    } catch (err) {
-        console.log(err);
-        res.status(500).send("Error creating listing");
+      newListing.images = [];
+
+      if(imageFiles && imageFiles.length){
+        newListing.images = imageFiles.map(f => ({
+          url: "uploads/" + f.filename,
+          filename: f.filename
+        }));
+      }
+
+      /* ===== OWNERSHIP PROOF ===== */
+      const proofFile = req.files["ownershipProof"];
+
+      if(proofFile && proofFile.length){
+        newListing.ownershipProof = {
+          url: proofFile[0].path,
+          filename: proofFile[0].filename
+        };
+        newListing.ownershipType = "owner";
+      }
+
+      /* ===== SAVE ===== */
+      await newListing.save();
+
+      req.flash("success","Listing created successfully");
+      res.redirect("/listings");
+
+    } catch(err){
+      console.log(err);
+      req.flash("error","Something went wrong");
+      res.redirect("/listings/new");
     }
+
 });
 
-
 // Show single listing
-router.get("/:id", async (req, res) => {
+router.get("/:id",isLoggedIn, async (req, res) => {
     try {
         const { id } = req.params;
         const listing = await Listing.findById(id).populate("owner");
-           console.log("IMAGES:", listing.images);
-        res.render("listings/show.ejs", { listing });
+        const reservedSuccess = req.query.reserved === "true";
+        res.render("listings/show.ejs", { listing, reservedSuccess });
     } catch (err) {
         console.log(err);
         res.send("Error fetching listing");
@@ -137,5 +147,31 @@ router.delete("/:id",isLoggedIn, isOwner, async (req, res) => {
     }
 });
 
+// VERIFY OWNER (DEV ONLY)
+router.post("/:id/verify-owner", isLoggedIn, async (req, res) => {
+
+    try {
+
+        if (req.user.role !== "dev") {
+            req.flash("error", "Unauthorized action");
+            return res.redirect("/listings");
+        }
+
+        const { id } = req.params;
+
+        await Listing.findByIdAndUpdate(id, {
+            verificationStatus: "verified"
+        });
+
+        req.flash("success", "Owner verified successfully");
+        res.redirect(`/listings/${id}`);
+
+    } catch (err) {
+        console.log(err);
+        req.flash("error", "Something went wrong");
+        res.redirect("/listings");
+    }
+
+});
 
 module.exports = router;

@@ -13,6 +13,8 @@ const passport = require("passport");
 const listingRoutes = require("./routes/listings");
 const userRoutes = require("./routes/users");
 const User = require("./models/user");
+const bookingRoutes = require("./routes/bookings");
+
 
 const app = express();
 const PORT = 5050;
@@ -86,6 +88,9 @@ app.use((req, res, next) => {
 app.use("/", userRoutes);
 
 app.use("/listings", listingRoutes);
+
+app.use("/",bookingRoutes);
+
 
 app.get("/", (req, res) => {
     res.send("StayNest running");

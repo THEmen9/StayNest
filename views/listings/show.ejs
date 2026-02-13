@@ -1,111 +1,223 @@
 
 
-<div class="container mt-4">
+<div class="container-fluid">
+  <!-- TABS NAVIGATION (OUTSIDE) -->
+  <ul class="nav nav-tabs mb-3" id="listingTabs">
+    <li class="nav-item">
+      <button class="nav-link active"
+              data-bs-toggle="tab"
+              data-bs-target="#overviewTab">
+        Overview
+      </button>
+    </li>
 
-<div class="card shadow-sm border-0">
-  <div class="card-body">
+    <li class="nav-item">
+      <button class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#locationTab">
+        Location
+      </button>
+    </li>
+  </ul>
 
-    <h3 class="fw-semibold mb-3"><%= listing.title %></h3>
+  <!-- TAB CONTENT -->
+  <div class="tab-content">
 
-    <div id="listingCarousel" class="carousel slide mb-3">
+    <!-- OVERVIEW TAB -->
+    <div class="tab-pane fade show active" id="overviewTab">
 
-<div class="carousel-inner rounded">
+      <!-- ALL YOUR SHOW PAGE CONTENT HERE -->
+      <!-- booking card, room selection, carousel etc -->
 
- <% if(listing.images && listing.images.length){ %>
+    </div>
 
-<div id="listingCarousel" class="carousel slide" data-bs-ride="carousel">
-  <div class="carousel-inner">
+    <!-- LOCATION TAB -->
+    <div class="tab-pane fade" id="locationTab">
 
-    <% listing.images.forEach((img, index) => { %>
-      <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-        <img src="<%= img.url.startsWith('http') ? img.url : '/' + img.url %>"
-             class="d-block w-100 rounded"
-             style="height:450px; object-fit:cover;">
+      <div class="card shadow-sm border-0 p-3">
+        <h5 class="fw-bold mb-3">Location</h5>
+        <div id="map" style="height:350px;"></div>
       </div>
-    <% }) %>
-
-  </div>
-
-  <% if(listing.images.length > 1){ %>
-    <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon"></span>
-    </button>
-  <% } %>
-</div>
-
-<% } %>
-
-
-</div>
-
-  <!-- controls -->
-  <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon"></span>
-  </button>
-
-  <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon"></span>
-  </button>
-
-</div>
-
-    <p class="text-muted"><%= listing.description %></p>
-
-    <p class="mb-1"><strong>Price:</strong> ₹ <%= listing.price %></p>
-    <p class="mb-1"><strong>Location:</strong> <%= listing.location %></p>
-    <p class="mb-3"><strong>Country:</strong> <%= listing.country %></p>
-
-    <div class="d-flex gap-2">
-        <!-- <a href="/listings" class="btn btn-outline-dark btn-sm">Back</a> -->
-       <% if(
-            currentUser &&
-            listing.owner &&
-            (listing.owner.toString() === currentUser._id.toString() ||
-              currentUser.role === "dev")
-          ){ %>
-
-            <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark">Edit</a>
-
-            <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
-                <button class="btn btn-danger">Delete</button>
-            </form>
-
-      <% } %>
-
 
     </div>
 
   </div>
-</div>
-
-<div id="map" class="mt-3 rounded">
-       data-coordinates='<%- JSON.stringify(listing.geometry.coordinates) %>'>
-</div>
 
 </div>
 
+
+  <div class="row">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-lg-8">
+
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-body">
+
+        <h3 class="fw-semibold mb-3"><%= listing.title %></h3>
+
+        <!-- CAROUSEL -->
+        <div id="listingCarousel" class="carousel slide mb-3" data-bs-ride="carousel">
+          <div class="carousel-inner rounded">
+
+            <% listing.images.forEach((img, index) => { %>
+              <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                <img src="<%= img.url.startsWith('http') ? img.url : '/' + img.url %>"
+                     class="d-block w-100"
+                     style="height:350px; object-fit:cover;">
+              </div>
+            <% }) %>
+          </div>
+
+          <% if(listing.images.length > 1){ %>
+            <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          <% } %>
+        </div>
+
+        <p class="text-muted"><%= listing.description %></p>
+
+        <p class="mb-1"><strong>Price:</strong> ₹ <%= listing.price %></p>
+        <p class="mb-1"><strong>Location:</strong> <%= listing.location %></p>
+        <p class="mb-3"><strong>Country:</strong> <%= listing.country %></p>
+
+        <% if(currentUser && listing.owner &&
+            (listing.owner.toString() === currentUser._id.toString() ||
+             currentUser.role === "dev")){ %>
+
+          <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark">Edit</a>
+
+          <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST" class="d-inline">
+            <button class="btn btn-danger">Delete</button>
+          </form>
+
+        <% } %>
+
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="col-lg-4">
+
+    <div class="card shadow-sm border-0 sticky-booking p-3" id="bookingPanel">
+
+      <% if(reservedSuccess){ %>
+
+      <div class="alert alert-success small p-2 mb-2">
+        <strong>✔ Reservation Pending</strong><br>
+        Your booking request has been submitted successfully.
+      </div>
+
+      <% } %>
+
+      <% if(currentUser){ %>
+
+      <form action="/listings/<%= listing._id %>/book" method="POST">
+
+        <h5 class="fw-bold mb-3">
+          ₹ <span id="priceDisplay"><%= listing.price %></span>
+          <small class="text-muted">/ night</small>
+        </h5>
+
+        <label class="form-label">Booking Type</label>
+        <select name="bookingType" id="bookingType" class="form-select mb-2">
+          <option value="whole">Whole Property</option>
+          <option value="room">Rooms</option>
+        </select>
+
+     
+        <div id="roomField" class="d-none">
+          <label class="form-label">Number of Rooms</label>
+          <input type="number"
+                 name="roomsBooked"
+                 id="roomsBooked"
+                 min="1"
+                 max="<%= listing.totalRooms || 5 %>"
+                 value="1"
+                 class="form-control mb-2">
+        </div>
+
+        <label class="form-label">Check In</label>
+        <input type="date" name="checkIn" class="form-control mb-2" required>
+
+        <label class="form-label">Check Out</label>
+        <input type="date" name="checkOut" class="form-control mb-2" required>
+
+        <label class="form-label">Guests</label>
+        <input type="number" name="guests" value="1" min="1" class="form-control mb-3">
+
+        <button class="btn btn-dark w-100 fw-semibold">
+          Reserve
+        </button>
+
+      </form>
+
+      <% } else { %>
+
+      <div class="text-center">
+        <p class="text-muted">Login to reserve this stay</p>
+        <a href="/login" class="btn btn-dark w-100">Login</a>
+      </div>
+
+      <% } %>
+
+    </div>
+
+  </div>
+
+</div>
 
 <script>
-    const listing = <%- JSON.stringify(listing) %>;
+(() => {
 
-    const coords = [
-        listing.geometry.coordinates[1], // lat
-        listing.geometry.coordinates[0]  // lng
-    ];
+  const bookingType  = document.getElementById("bookingType");
+  const roomField    = document.getElementById("roomField");
+  const roomsInput   = document.getElementById("roomsBooked");
+  const priceDisplay = document.getElementById("priceDisplay");
 
-    const map = L.map('map').setView(coords, 10);
+  // stop if booking panel not present
+  if (!bookingType || !roomField || !priceDisplay) return;
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-    }).addTo(map);
+  const wholePrice = Number("<%= listing.price %>");
+  const totalRooms = Number("<%= listing.totalRooms || 1 %>");
+  const roomPrice  = wholePrice / totalRooms;
 
-    L.marker(coords)
-        .addTo(map)
-        .bindPopup(`<b>${listing.title}</b><br>${listing.location}`)
-        .openPopup();
+  function updatePrice(){
+
+      const type  = bookingType.value;
+      const rooms = Number(roomsInput?.value) || 1;
+
+      if(type === "room"){
+          roomField.classList.remove("d-none");
+          priceDisplay.textContent = Math.round(roomPrice * rooms);
+      } else {
+          roomField.classList.add("d-none");
+          priceDisplay.textContent = wholePrice;
+      }
+  }
+
+  // events
+  bookingType.addEventListener("change", updatePrice);
+  roomsInput?.addEventListener("input", updatePrice);
+
+  // IMPORTANT → run once on load
+  updatePrice();
+
+})();
+</script>
+<script>
+const params = new URLSearchParams(window.location.search);
+
+if(params.get("reserved") === "true"){
+  const panel = document.getElementById("bookingPanel");
+  panel?.scrollIntoView({ behavior:"smooth", block:"start" });
+}
 </script>
 
 

@@ -1,62 +1,62 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-  <div class="container">
+  <div class="container-fluid px-4">
 
+    <!-- LEFT : Brand -->
     <a class="navbar-brand fw-bold" href="/listings">StayNest</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
+      <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navMenu">
 
-        <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-                 <a class="nav-link <%= currPath === '/listings' ? 'active fw-semibold' : '' %>" 
-                    href="/listings">
-                    Home
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/listings/new">Add Listing</a>
-            </li>
-        </ul>
-        
-        <form class="d-flex me-3" action="/listings" method="GET">
-        <input class="form-control form-control-sm" 
-                type="search" 
-                name="search" 
-                placeholder="Search stays...">
-        </form>
+      <!-- LEFT MENU -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link <%= currPath === '/listings' ? 'active fw-semibold' : '' %>" href="/listings">
+            Home
+          </a>
+        </li>
 
-        <div class="d-flex gap-2">
-            <div class="d-flex gap-2 align-items-center">
+        <li class="nav-item">
+          <a class="nav-link" href="/listings/new">Add Listing</a>
+        </li>
+      </ul>
 
-                <% if(currentUser){ %>
+      <!-- CENTER : SEARCH -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
 
-                    <span class="fw-semibold me-2">
-                        Hi, <%= currentUser.username %>
-                    </span>
+      <form class="d-flex me-3" action="/listings" method="GET">
+        <input class="form-control form-control-sm"
+          type="search"
+          name="search"
+          placeholder="Search stays...">
+      </form>
 
-                    <% if(currentUser.role === "dev"){ %>
-                        <span class="badge bg-dark ms-2">DEV</span>
-                    <% } %>
+      <!-- RIGHT : AUTH -->
+      <div class="d-flex align-items-center gap-2">
 
-                    <a href="/logout" class="btn btn-outline-danger btn-sm">
-                        Logout
-                    </a>
+        <% if(currentUser){ %>
 
-                <% } else { %>
+          <span class="fw-semibold">
+            Hi, <%= currentUser.username %>
+          </span>
 
-                    <a href="/login" class="btn btn-outline-dark btn-sm">Login</a>
-                    <a href="/signup" class="btn btn-dark btn-sm">Signup</a>
+          <% if(currentUser.role === "dev"){ %>
+            <span class="badge bg-dark">DEV</span>
+          <% } %>
 
-                <% } %>
+          <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
 
-            </div>
+        <% } else { %>
 
-        </div>
+          <a href="/login" class="btn btn-outline-dark btn-sm">Login</a>
+          <a href="/signup" class="btn btn-dark btn-sm">Signup</a>
+
+        <% } %>
+
+      </div>
 
     </div>
-
   </div>
 </nav>
