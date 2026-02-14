@@ -13,6 +13,8 @@
 
  <body class="layout-body d-flex flex-column min-vh-100">
 
+  
+
   <%- include("../includes/navbar") %>
 
   <div class="layout-container flex-grow-1">
@@ -25,34 +27,51 @@
 
   <%- include("../includes/footer") %>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-  const toggleBtn = document.getElementById("toggleSidebar");
-  const sidebar = document.getElementById("sidebar");
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  const toggleBtn  = document.getElementById("toggleSidebar");
+  const sidebar    = document.getElementById("sidebar");
   const toggleIcon = document.getElementById("toggleIcon");
 
-   toggleBtn.addEventListener("click", () => {
+  if (!toggleBtn || !sidebar) return;
 
-    // Desktop collapse / mobile slide
-    if (window.innerWidth < 992) {
+  function updateIcon() {
+    if (sidebar.classList.contains("collapsed") || sidebar.classList.contains("show")) {
+      toggleIcon.classList.remove("bi-list");
+      toggleIcon.classList.add("bi-x");
+    } else {
+      toggleIcon.classList.remove("bi-x");
+      toggleIcon.classList.add("bi-list");
+    }
+  }
+
+  toggleBtn.addEventListener("click", function(){
+
+    if (window.innerWidth < 892) {
       sidebar.classList.toggle("show");
     } else {
       sidebar.classList.toggle("collapsed");
     }
-    const isCollapsed = sidebar.classList.contains("collapsed");
 
-    // Swap icon
-    if (!isCollapsed) {
-      toggleIcon.classList.remove("bi-list");
-      toggleIcon.classList.add("bi-x");
-      toggleBtn.classList.add("active");
+    updateIcon();
+  });
+
+  /* Smart Resize Handling */
+  window.addEventListener("resize", function(){
+
+    if (window.innerWidth >= 892) {
+      sidebar.classList.remove("show");
     } else {
-      toggleIcon.classList.remove("bi-x");
-      toggleIcon.classList.add("bi-list");
-      toggleBtn.classList.remove("active");
+      sidebar.classList.remove("collapsed");
     }
 
+    updateIcon();
   });
+
+});
 </script>
 
 </body>

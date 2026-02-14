@@ -17,6 +17,7 @@
     "@mapbox/mapbox-sdk": "^0.16.2",
     "bcryptjs": "^3.0.3",
     "connect-flash": "^0.1.1",
+    "connect-mongo": "^6.0.0",
     "dotenv": "^17.2.4",
     "ejs": "^4.0.1",
     "express": "^5.2.1",

@@ -1,7 +1,7 @@
+<!-- map container... -->
 
+<!-- <div class="container-fluid">
 
-<div class="container-fluid">
-  <!-- TABS NAVIGATION (OUTSIDE) -->
   <ul class="nav nav-tabs mb-3" id="listingTabs">
     <li class="nav-item">
       <button class="nav-link active"
@@ -20,18 +20,12 @@
     </li>
   </ul>
 
-  <!-- TAB CONTENT -->
   <div class="tab-content">
 
-    <!-- OVERVIEW TAB -->
     <div class="tab-pane fade show active" id="overviewTab">
-
-      <!-- ALL YOUR SHOW PAGE CONTENT HERE -->
-      <!-- booking card, room selection, carousel etc -->
 
     </div>
 
-    <!-- LOCATION TAB -->
     <div class="tab-pane fade" id="locationTab">
 
       <div class="card shadow-sm border-0 p-3">
@@ -43,7 +37,7 @@
 
   </div>
 
-</div>
+</div> -->
 
 
   <div class="row">
@@ -109,16 +103,13 @@
 
       <% if(reservedSuccess){ %>
 
-      <div class="alert alert-success small p-2 mb-2">
-        <strong>✔ Reservation Pending</strong><br>
-        Your booking request has been submitted successfully.
-      </div>
-
+      
       <% } %>
 
       <% if(currentUser){ %>
 
-      <form action="/listings/<%= listing._id %>/book" method="POST">
+      <form id="bookingForm" action="/listings/<%= listing._id %>/book" method="POST">
+        <div id="bookingMessage"></div>
 
         <h5 class="fw-bold mb-3">
           ₹ <span id="priceDisplay"><%= listing.price %></span>
@@ -152,9 +143,10 @@
         <label class="form-label">Guests</label>
         <input type="number" name="guests" value="1" min="1" class="form-control mb-3">
 
-        <button class="btn btn-dark w-100 fw-semibold">
+        <button id="reserveBtn" class="btn btn-dark w-100 fw-semibold">
           Reserve
         </button>
+
 
       </form>
 
@@ -174,51 +166,130 @@
 </div>
 
 <script>
-(() => {
+document.addEventListener("DOMContentLoaded", function(){
+
+  /*BOOKING UI LOGIC */
+
+  const form         = document.getElementById("bookingForm");
+  if (!form) return;
 
   const bookingType  = document.getElementById("bookingType");
   const roomField    = document.getElementById("roomField");
   const roomsInput   = document.getElementById("roomsBooked");
   const priceDisplay = document.getElementById("priceDisplay");
+  const btn          = form.querySelector("button");
 
-  // stop if booking panel not present
-  if (!bookingType || !roomField || !priceDisplay) return;
+  const wholePrice   = Number("<%= listing.price %>");
+  const totalRooms   = Number("<%= listing.totalRooms || 1 %>");
+  const roomPrice    = wholePrice / totalRooms;
 
-  const wholePrice = Number("<%= listing.price %>");
-  const totalRooms = Number("<%= listing.totalRooms || 1 %>");
-  const roomPrice  = wholePrice / totalRooms;
+
+  /* PRICE CALCULATION */
+
+  function getNights(){
+    const checkIn  = new Date(form.checkIn.value);
+    const checkOut = new Date(form.checkOut.value);
+
+    if (!form.checkIn.value || !form.checkOut.value) return 1;
+
+    const diff = checkOut - checkIn;
+    const nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    return nights > 0 ? nights : 1;
+  }
 
   function updatePrice(){
 
-      const type  = bookingType.value;
-      const rooms = Number(roomsInput?.value) || 1;
+    const type   = bookingType.value;
+    const rooms  = Number(roomsInput?.value) || 1;
+    const nights = getNights();
 
-      if(type === "room"){
-          roomField.classList.remove("d-none");
-          priceDisplay.textContent = Math.round(roomPrice * rooms);
-      } else {
-          roomField.classList.add("d-none");
-          priceDisplay.textContent = wholePrice;
-      }
+    if(type === "room"){
+      roomField.classList.remove("d-none");
+      priceDisplay.textContent = Math.round(roomPrice * rooms * nights);
+    } else {
+      roomField.classList.add("d-none");
+      priceDisplay.textContent = wholePrice * nights;
+    }
   }
 
-  // events
   bookingType.addEventListener("change", updatePrice);
   roomsInput?.addEventListener("input", updatePrice);
+  form.checkIn.addEventListener("change", updatePrice);
+  form.checkOut.addEventListener("change", updatePrice);
 
-  // IMPORTANT → run once on load
   updatePrice();
 
-})();
-</script>
-<script>
-const params = new URLSearchParams(window.location.search);
 
-if(params.get("reserved") === "true"){
-  const panel = document.getElementById("bookingPanel");
-  panel?.scrollIntoView({ behavior:"smooth", block:"start" });
-}
+  /* FORM SUBMISSION (AJAX) */
+
+  form.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    btn.disabled = true;
+    btn.innerText = "Processing...";
+
+    const data = {
+      checkIn: this.checkIn.value,
+      checkOut: this.checkOut.value,
+      guests: this.guests.value,
+      bookingType: this.bookingType.value,
+      roomsBooked: this.roomsBooked?.value
+    };
+
+    try {
+
+      const response = await fetch(this.action, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      showToast(result.message, result.success ? "success" : "error");
+
+    } catch (err) {
+      if (!response.ok) {
+      showToast("Server error. Please try again.", "error");
+      btn.disabled = false;
+      btn.innerText = "Reserve";
+      return;
+  }
+    }
+
+    btn.disabled = false;
+    btn.innerText = "Reserve";
+
+  });
+
+
+  /* INLINE TOAST SYSTEM */
+
+  function showToast(message, type){
+
+    const container = document.getElementById("bookingMessage");
+    if(!container) return;
+
+    container.innerHTML = "";
+
+    const div = document.createElement("div");
+    div.className = "inline-toast " + (type === "error" ? "error" : "");
+    div.innerText = message;
+
+    container.appendChild(div);
+
+    setTimeout(()=>{
+      div.style.opacity = "0";
+      setTimeout(()=> div.remove(), 300);
+    }, 2500);
+  }
+
+});
 </script>
+
+
 
 
 <script src="/js/map.js"></script>

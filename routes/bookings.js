@@ -5,66 +5,169 @@ const Listing = require("../models/listing");
 const { isLoggedIn } = require("../middleware");
 
 router.post("/listings/:id/book", isLoggedIn, async (req,res)=>{
-console.log("BOOKING BODY:", req.body);
 
-  const { id } = req.params;
-  const { checkIn, checkOut, guests, bookingType, roomsBooked } = req.body;
+  try {
 
-  const listing = await Listing.findById(id);
+    const { id } = req.params;
 
-  if(!listing){
-    req.flash("error","Listing not found");
-    return res.redirect("/listings");
-  }
-
-  /* ===== prevent self booking ===== */
-  if(listing.owner.equals(req.user._id)){
-    req.flash("error","You cannot book your own property");
-    return res.redirect(`/listings/${id}`);
-  }
-
-  /* ===== ROOM VALIDATION ===== */
-  let selectedRooms = 1;
-
-  if(bookingType === "room"){
-
-    selectedRooms = Number(roomsBooked) || 1;
-
-    if(selectedRooms < 1){
-      req.flash("error","Invalid room selection");
-      return res.redirect(`/listings/${id}`);
+    const listing = await Listing.findById(id);
+    if (!listing) {
+      return res.json({ success:false, message:"Listing not found" });
     }
 
-    if(selectedRooms > listing.totalRooms){
-      req.flash("error","Selected rooms exceed available rooms");
-      return res.redirect(`/listings/${id}`);
+    if (listing.owner.equals(req.user._id)) {
+      return res.json({ success:false, message:"You cannot book your own property" });
     }
-  }
 
-  /* ===== PRICE CALCULATION ===== */
-  let totalPrice = listing.price;
+    const { checkIn, checkOut, guests, bookingType, roomsBooked } = req.body;
 
-  if(bookingType === "room"){
-    const roomPrice = listing.price / listing.totalRooms;
-    totalPrice = Math.round(roomPrice * selectedRooms);
-  }
+    const newCheckIn = new Date(checkIn);
+    const newCheckOut = new Date(checkOut);
 
-  /* ===== CREATE BOOKING ===== */
-  const booking = new Booking({
-    listing:id,
-    user:req.user._id,
-    checkIn,
-    checkOut,
-    guests,
-    bookingType: bookingType || "whole",
-    roomsBooked: selectedRooms,
-    totalPrice
-  });
+    //  STRONG TIME NORMALIZATION
+    newCheckIn.setHours(0,0,0,0);
+    newCheckOut.setHours(0,0,0,0);
 
-  await booking.save();
+    if (isNaN(newCheckIn) || isNaN(newCheckOut)) {
+      return res.json({ success:false, message:"Invalid date format" });
+    }
 
-  req.flash("success","Reservation Pending");
-  res.redirect(`/listings/${id}?reserved=true`);
+    if (newCheckIn >= newCheckOut) {
+      return res.json({ success:false, message:"Invalid date selection" });
+    }
+
+    //  FIND OVERLAPPING BOOKINGS (Core logic)
+    const overlappingBookings = await Booking.find({
+      listing: id,
+      status: "confirmed",
+      checkIn: { $lt: newCheckOut },
+      checkOut: { $gt: newCheckIn }
+    });
+
+    let selectedRooms = 1;
+
+    if (bookingType === "room") {
+
+      selectedRooms = Number(roomsBooked) || 1;
+
+      if (selectedRooms < 1 || selectedRooms > listing.totalRooms) {
+        return res.json({ success:false, message:"Invalid room selection" });
+      }
+
+      // If whole booking exists → block
+      const wholeBooked = overlappingBookings.some(
+        booking => booking.bookingType === "whole"
+      );
+
+      if (wholeBooked) {
+        return res.json({ success:false, message:"Property fully reserved" });
+      }
+
+      // Count already booked rooms
+      const roomsAlreadyBooked = overlappingBookings.reduce(
+        (sum, booking) => sum + booking.roomsBooked,
+        0
+      );
+
+      if (roomsAlreadyBooked + selectedRooms > listing.totalRooms) {
+        return res.json({ success:false, message:"Not enough rooms available" });
+      }
+
+    } else {
+      // Whole property booking
+      if (overlappingBookings.length > 0) {
+        return res.json({ success:false, message:"Already booked for selected dates" });
+      }
+    }
+
+    //  PER-NIGHT CALCULATION
+    const days = Math.ceil(
+      (newCheckOut - newCheckIn) / (1000 * 60 * 60 * 24)
+    );
+
+    let totalPrice;
+
+    if (bookingType === "room") {
+      const roomPrice = listing.price / listing.totalRooms;
+      totalPrice = Math.round(roomPrice * selectedRooms * days);
+    } else {
+      totalPrice = listing.price * days;
+    }
+
+    const booking = new Booking({
+      listing: id,
+      user: req.user._id,
+      checkIn: newCheckIn,
+      checkOut: newCheckOut,
+      guests: Number(guests) || 1,
+      bookingType,
+      roomsBooked: selectedRooms,
+      totalPrice,
+      status: "confirmed"
+    });
+
+    await booking.save();
+    return res.json({
+  success: true,
+  message: "Stay reserved successfully"
 });
 
-module.exports = router;
+  } catch (err) {
+    console.error(err);
+    return res.json({ success:false, message:"Server error" });
+  }
+
+});
+
+router.get("/my-bookings", isLoggedIn, async (req, res) => {
+
+  const bookings = await Booking.find({ user: req.user._id })
+    .populate("listing")
+    .sort({ createdAt: -1 });
+
+  res.render("bookings/index", { bookings });
+
+});
+
+router.patch("/bookings/:id/cancel", isLoggedIn, async (req, res) => {
+
+  const booking = await Booking.findById(req.params.id);
+
+  if(!booking || !booking.user.equals(req.user._id)){
+    return res.json({ success:false, message:"Unauthorized" });
+  }
+
+  booking.status = "cancelled";
+  await booking.save();
+
+  return res.json({ success:true, message:"Booking cancelled" });
+
+});
+
+router.delete("/bookings/:id", isLoggedIn, async (req, res) => {
+
+  try {
+
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.json({ success: false });
+    }
+
+    if (!booking.user.equals(req.user._id)) {
+      return res.json({ success: false });
+    }
+
+    await booking.deleteOne();
+
+    return res.json({ success: true });
+
+  } catch (err) {
+    console.error("Delete error:", err);
+    return res.json({ success: false });
+  }
+
+});
+
+
+  module.exports = router;

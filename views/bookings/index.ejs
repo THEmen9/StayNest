@@ -1,0 +1,144 @@
+<h3 class="mb-4">My Bookings</h3>
+
+<div class="row g-4">
+
+  <% bookings.forEach(booking => { %>
+
+    <div class="col-md-6 booking-wrapper">
+      <div class="booking-card p-4">
+
+        <div class="booking-header">
+          <h5><%= booking.listing.title %></h5>
+
+          <span class="status-pill <%= booking.status %>">
+            <%= booking.status %>
+          </span>
+        </div>
+
+        <div class="booking-meta">
+          <div>
+            <small>Check-in</small>
+            <strong><%= booking.checkIn.toDateString() %></strong>
+          </div>
+
+          <div>
+            <small>Check-out</small>
+            <strong><%= booking.checkOut.toDateString() %></strong>
+          </div>
+        <div>
+      <small>Booking Type</small>
+      <strong>
+        <%= booking.bookingType === "room" ? "Rooms" : "Whole Property" %>
+      </strong>
+    </div>
+
+    <% if(booking.bookingType === "room"){ %>
+      <div>
+        <small>Rooms</small>
+        <strong><%= booking.roomsBooked %></strong>
+      </div>
+    <% } %>
+
+          <div>
+            <small>Total</small>
+            <strong>₹ <%= booking.totalPrice %></strong>
+          </div>
+        </div>
+
+        <div class="booking-actions">
+          <% if(booking.status === "confirmed"){ %>
+                <button class="cancel-btn" data-id="<%= booking._id %>">
+                    Cancel
+                </button>
+           <% } %>
+
+           <% if(booking.status === "cancelled"){ %>
+               <button class="delete-btn" data-id="<%= booking._id %>">
+                  Delete
+               </button>
+           <% } %>
+        </div>
+
+      </div>
+    </div>
+
+  <% }) %>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+
+    btn.addEventListener("click", async function(){
+
+      const id = this.dataset.id;
+
+      const confirmDelete = confirm("Delete this booking permanently?");
+      if (!confirmDelete) return;
+
+      try {
+
+        const response = await fetch(`/bookings/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        const result = await response.json();
+
+        if(result.success){
+          const card = this.closest(".booking-wrapper");
+          card.remove();
+        } else {
+          alert("Delete failed");
+        }
+
+      } catch (err) {
+        console.error("Delete error:", err);
+      }
+
+    });
+
+  });
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  document.querySelectorAll(".cancel-btn").forEach(btn => {
+
+    btn.addEventListener("click", async function(){
+
+      const id = this.dataset.id;
+
+      const confirmed = confirm("Cancel this booking?");
+      if (!confirmed) return;
+
+      try {
+
+        const response = await fetch(`/bookings/${id}/cancel`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        const result = await response.json();
+
+        if(result.success){
+          location.reload();  // simple and safe for now
+        } else {
+          alert("Cancel failed");
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+
+    });
+
+  });
+
+});
+</script>
+

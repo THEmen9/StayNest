@@ -1,11 +1,13 @@
+
 <h3 class="mb-4 text-center">Login</h3>
 
 <div class="row justify-content-center">
   <div class="col-md-6">
     <div class="card p-4 shadow-sm">
 
-      <form action="/login" method="POST">
-
+      <form id="loginForm">
+        <div id="loginMessage"></div>
+        
         <div class="mb-3">
           <label class="form-label">Username</label>
           <input type="text" name="username" class="form-control" required>
@@ -23,3 +25,70 @@
     </div>
   </div>
 </div>
+
+<script>
+  console.log("LOGIN SCRIPT LOADED");
+document.addEventListener("DOMContentLoaded", function(){
+
+  const form = document.getElementById("loginForm");
+
+  form.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const data = {
+      username: this.username.value,
+      password: this.password.value
+    };
+
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    showToast(result.message, result.success ? "success" : "error");
+
+    if(result.success){
+
+  const username = form.username.value;
+
+  showToast(`Welcome back, ${username}`, "success");
+
+  setTimeout(()=>{
+    window.location.href = "/listings";
+    }, 1200);
+      }
+  });
+
+});
+
+function showToast(message, type){
+  const popup = document.createElement("div");
+  popup.className = "custom-toast " + type;
+  popup.innerText = message;
+  document.body.appendChild(popup);
+
+  setTimeout(()=> popup.classList.add("show"), 50);
+  setTimeout(()=>{
+    popup.classList.remove("show");
+    setTimeout(()=> popup.remove(), 300);
+  }, 2000);
+}
+</script>
+
+
+<script>
+setTimeout(() => {
+  const msg = document.querySelector(".auth-message");
+  if(msg){
+    msg.style.opacity = "0";
+    msg.style.transition = "opacity 0.4s ease";
+    setTimeout(()=> msg.remove(), 400);
+  }
+}, 3000);
+</script>

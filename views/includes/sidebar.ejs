@@ -14,7 +14,11 @@
       <i class="bi bi-house-door"></i>
       <span>Home</span>
   </a>
-
+  
+  <a href="/my-bookings" 
+   class="sidebar-link <%= currPath === '/my-bookings' ? 'active' : '' %>">
+   <i class="bi bi-calendar-check"></i> <span>My-bookings</span>
+ </a>
     <a href="/listings/new"
         class="sidebar-link <%= currPath === '/listings/new' ? 'active' : '' %>">
         <i class="bi bi-plus-circle"></i>

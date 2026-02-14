@@ -7,7 +7,10 @@ const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const methodOverride = require("method-override");
 const session = require("express-session");
+const MongoStore = require("connect-mongo").default;
 const flash = require("connect-flash");
+
+
 const passport = require("passport");
 
 const listingRoutes = require("./routes/listings");
@@ -30,16 +33,24 @@ app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Body parser middleware
-app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 // Session & flash middleware
-const sessionOptions = {
-    secret: "staynestsecret",
-    resave: false,
-    saveUninitialized: false,
-};
-app.use(session(sessionOptions));
+const store = MongoStore.create({
+  mongoUrl: "mongodb://127.0.0.1:27017/staynest",
+  crypto: { secret: "staynestsecret" }
+});
+
+app.use(session({
+  secret: "staynestsecret",
+  resave: false,
+  saveUninitialized: false,
+  store,
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  }
+}));
+
 app.use(flash());
 
 // Passport authentication
@@ -74,7 +85,6 @@ passport.deserializeUser(async(id,done)=>{
    }
 });
 
-
 // Locals middleware
 app.use((req, res, next) => {
      res.locals.currentUser = req.user;
@@ -84,6 +94,8 @@ app.use((req, res, next) => {
      next();
 });
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 // Routes
 app.use("/", userRoutes);
 

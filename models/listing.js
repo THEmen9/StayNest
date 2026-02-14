@@ -29,6 +29,7 @@ const listingSchema = new mongoose.Schema({
     totalRooms:{
     type:Number,
     required: true,
+    default: 1,
     min: 1
     },
 
