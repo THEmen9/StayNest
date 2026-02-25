@@ -1,84 +1,49 @@
-<!-- map container... -->
 
-<!-- <div class="container-fluid">
+<div class="row g-3">
 
-  <ul class="nav nav-tabs mb-3" id="listingTabs">
-    <li class="nav-item">
-      <button class="nav-link active"
-              data-bs-toggle="tab"
-              data-bs-target="#overviewTab">
-        Overview
-      </button>
-    </li>
+  <!-- ================= LEFT — DETAILS ================= -->
+  <div class="<%= showReserve ? 'col-lg-8' : 'col-lg-12' %>">
 
-    <li class="nav-item">
-      <button class="nav-link"
-              data-bs-toggle="tab"
-              data-bs-target="#locationTab">
-        Location
-      </button>
-    </li>
-  </ul>
-
-  <div class="tab-content">
-
-    <div class="tab-pane fade show active" id="overviewTab">
-
-    </div>
-
-    <div class="tab-pane fade" id="locationTab">
-
-      <div class="card shadow-sm border-0 p-3">
-        <h5 class="fw-bold mb-3">Location</h5>
-        <div id="map" style="height:350px;"></div>
-      </div>
-
-    </div>
-
-  </div>
-
-</div> -->
-
-
-  <div class="row">
-
-  <!-- LEFT COLUMN -->
-  <div class="col-lg-8">
-
-    <div class="card shadow-sm border-0 mb-3">
+    <div class="card shadow-sm border-0">
       <div class="card-body">
 
+        <!-- TITLE -->
         <h3 class="fw-semibold mb-3"><%= listing.title %></h3>
 
         <!-- CAROUSEL -->
-        <div id="listingCarousel" class="carousel slide mb-3" data-bs-ride="carousel">
+        <div id="listingCarousel" class="carousel slide mb-3">
           <div class="carousel-inner rounded">
 
-            <% listing.images.forEach((img, index) => { %>
-              <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                <img src="<%= img.url.startsWith('http') ? img.url : '/' + img.url %>"
-                     class="d-block w-100"
-                     style="height:350px; object-fit:cover;">
+            <% listing.images.forEach((img,index)=>{ %>
+              <div class="carousel-item <%= index===0 ? 'active':'' %>">
+                <img
+                  src="<%= img.url.startsWith('http') ? img.url : '/' + img.url %>"
+                  class="d-block w-100"
+                  style="height:360px; object-fit:cover;">
               </div>
             <% }) %>
+
           </div>
 
-          <% if(listing.images.length > 1){ %>
-            <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon"></span>
-            </button>
+          <% if(listing.images.length>1){ %>
+          <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
           <% } %>
         </div>
 
+        <!-- DESCRIPTION -->
         <p class="text-muted"><%= listing.description %></p>
 
-        <p class="mb-1"><strong>Price:</strong> ₹ <%= listing.price %></p>
-        <p class="mb-1"><strong>Location:</strong> <%= listing.location %></p>
-        <p class="mb-3"><strong>Country:</strong> <%= listing.country %></p>
+        <!-- META -->
+        <div class="mb-2"><strong>Price:</strong> ₹ <%= listing.price %></div>
+        <div class="mb-2"><strong>Location:</strong> <%= listing.location %></div>
+        <div class="mb-3"><strong>Country:</strong> <%= listing.country %></div>
 
+        <!-- OWNER ACTIONS -->
         <% if(currentUser && listing.owner &&
             (listing.owner.toString() === currentUser._id.toString() ||
              currentUser.role === "dev")){ %>
@@ -97,14 +62,14 @@
   </div>
 
 
+  <!-- ================= RIGHT — BOOKING ================= -->
+  <% if(showReserve){ %>
   <div class="col-lg-4">
 
     <div class="card shadow-sm border-0 sticky-booking p-3" id="bookingPanel">
 
-      <% if(reservedSuccess){ %>
-
-      
-      <% } %>
+      <h5 class="fw-bold mb-2">Reserve this stay</h5>
+      <hr>
 
       <% if(currentUser){ %>
 
@@ -122,7 +87,6 @@
           <option value="room">Rooms</option>
         </select>
 
-     
         <div id="roomField" class="d-none">
           <label class="form-label">Number of Rooms</label>
           <input type="number"
@@ -147,7 +111,6 @@
           Reserve
         </button>
 
-
       </form>
 
       <% } else { %>
@@ -162,6 +125,7 @@
     </div>
 
   </div>
+  <% } %>
 
 </div>
 

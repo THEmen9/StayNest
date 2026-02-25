@@ -1,40 +1,50 @@
 
 <div class="sidebar" id="sidebar">
-      <!-- Toggle Button -->
-  <div class="sidebar-toggle">
-    <button id="toggleSidebar" class="btn btn-light toggle-btn">
-      <i class="bi bi-list" id="toggleIcon"></i>
-    </button>
-  </div>
+  <div class="sidebar-inner">
 
-  <h6 class="sidebar-title">Explore</h6>
+    <!-- Desktop-only: collapse toggle. Hidden on mobile via CSS. -->
+    <div class="sidebar-toggle">
+      <button id="toggleSidebar" title="Collapse sidebar">
+        <i class="bi bi-layout-sidebar" id="toggleIcon"></i>
+      </button>
+    </div>
 
-  <a href="/listings"
-     class="sidebar-link <%= currPath === '/listings' ? 'active' : '' %>">
+    <p class="sidebar-title">Explore</p>
+
+    <a href="/listings"
+       data-tooltip="Home"
+       class="sidebar-link <%= currPath === '/listings' ? 'active' : '' %>">
       <i class="bi bi-house-door"></i>
-      <span>Home</span>
-  </a>
-  
-  <a href="/my-bookings" 
-   class="sidebar-link <%= currPath === '/my-bookings' ? 'active' : '' %>">
-   <i class="bi bi-calendar-check"></i> <span>My-bookings</span>
- </a>
+      <span class="link-text">Home</span>
+    </a>
+
+    <a href="/my-bookings"
+       data-tooltip="My Bookings"
+       class="sidebar-link <%= currPath === '/my-bookings' ? 'active' : '' %>">
+      <i class="bi bi-calendar-check"></i>
+      <span class="link-text">My Bookings</span>
+    </a>
+
     <a href="/listings/new"
-        class="sidebar-link <%= currPath === '/listings/new' ? 'active' : '' %>">
-        <i class="bi bi-plus-circle"></i>
-        <span>Add Stay</span>
+       data-tooltip="Add Stay"
+       class="sidebar-link <%= currPath === '/listings/new' ? 'active' : '' %>">
+      <i class="bi bi-plus-circle"></i>
+      <span class="link-text">Add Stay</span>
     </a>
 
     <a href="/listings"
-        class="sidebar-link disabled">
-        <i class="bi bi-calendar-check"></i>
-        <span>Booking</span>
+       data-tooltip="Booking"
+       class="sidebar-link disabled">
+      <i class="bi bi-calendar3"></i>
+      <span class="link-text">Booking</span>
     </a>
 
-   <a href="#"
-     class="sidebar-link disabled">
+    <a href="#"
+       data-tooltip="Bathroom Rent"
+       class="sidebar-link disabled">
       <i class="bi bi-droplet"></i>
-      <span>Bathroom Rent</span>
+      <span class="link-text">Bathroom Rent</span>
     </a>
-</div>
 
+  </div>
+</div>

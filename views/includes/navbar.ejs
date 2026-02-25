@@ -1,62 +1,132 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-  <div class="container-fluid px-4">
 
-    <!-- LEFT : Brand -->
-    <a class="navbar-brand fw-bold" href="/listings">StayNest</a>
+<!-- Mobile nav backdrop -->
+<div class="nav-backdrop" id="navBackdrop"></div>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<nav class="navbar navbar-expand-lg sticky-top">
+  <%#
+    FIX 4 — NAVBAR SPACING
+    ════════════════════════════════════════════════════════
+    OLD: unstructured d-flex with ad-hoc gaps, cramped on tablet,
+         brand and search misaligned with sidebar edge.
+    
+    NEW: two explicit regions — .navbar-left and .navbar-right
+         .navbar-left  → flex:1 with consistent gap (brand + search)
+         .navbar-right → flex-shrink:0 (controls, user menu)
+         
+         #navSidebarToggle: mobile only (d-lg-none via Bootstrap),
+         shows only when currentUser exists — single mobile trigger.
+         
+         .navbar-toggler: controls only #navMenu (user dropdown),
+         does NOT touch sidebar — clean separation of concerns.
+    ════════════════════════════════════════════════════════
+  %>
+  <div class="container-fluid">
 
-    <div class="collapse navbar-collapse" id="navMenu">
+    <!-- ── LEFT: sidebar trigger + brand + search ──────── -->
+    <div class="navbar-left">
 
-      <!-- LEFT MENU -->
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link <%= currPath === '/listings' ? 'active fw-semibold' : '' %>" href="/listings">
-            Home
-          </a>
-        </li>
+      <% if(currentUser){ %>
+      <button
+        id="navSidebarToggle"
+        class="d-lg-none"
+        aria-label="Open navigation">
+        <i class="bi bi-list"></i>
+      </button>
+      <% } %>
 
-        <li class="nav-item">
-          <a class="nav-link" href="/listings/new">Add Listing</a>
-        </li>
-      </ul>
+      <a class="brand-logo" href="/listings">StayNest</a>
 
-      <!-- CENTER : SEARCH -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-      <form class="d-flex me-3" action="/listings" method="GET">
-        <input class="form-control form-control-sm"
-          type="search"
-          name="search"
-          placeholder="Search stays...">
+      <% if(currentUser){ %>
+      <form class="search-form" action="/listings" method="GET">
+        <input class="search-input"
+               type="search"
+               name="search"
+               placeholder="Search stays...">
       </form>
-
-      <!-- RIGHT : AUTH -->
-      <div class="d-flex align-items-center gap-2">
-
-        <% if(currentUser){ %>
-
-          <span class="fw-semibold">
-            Hi, <%= currentUser.username %>
-          </span>
-
-          <% if(currentUser.role === "dev"){ %>
-            <span class="badge bg-dark">DEV</span>
-          <% } %>
-
-          <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
-
-        <% } else { %>
-          <a href="/my-bookings" class="nav-link">My Bookings</a>
-          <a href="/login" class="btn btn-outline-dark btn-sm">Login</a>
-          <a href="/signup" class="btn btn-dark btn-sm">Signup</a>
-
-        <% } %>
-
-      </div>
+      <% } %>
 
     </div>
+
+    <!-- ── RIGHT: user menu toggle ─────────────────────── -->
+    <div class="navbar-right">
+      <button
+        class="navbar-toggler d-lg-none"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navMenu"
+        aria-label="Toggle user menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- User menu collapse -->
+  <div class="collapse navbar-collapse justify-content-end px-3" id="navMenu">
+
+    <% if(currentUser){ %>
+    <div class="user-dropdown mt-2 mt-lg-0">
+      <div class="user-pill" id="userToggle">
+        <span class="pill-arrow">›</span>
+        <div class="avatar-circle">
+          <%= currentUser.username.charAt(0).toUpperCase() %>
+        </div>
+        <span class="username-text"><%= currentUser.username %></span>
+        <% if(currentUser.role === "dev"){ %>
+          <span class="dev-badge">DEV</span>
+        <% } %>
+      </div>
+
+      <div class="dropdown-menu-custom" id="userMenu">
+        <form method="POST" action="/logout">
+          <button type="submit" class="logout-btn">Logout</button>
+        </form>
+      </div>
+    </div>
+    <% } %>
+
+    <% if(!currentUser){ %>
+      <a href="/login"  class="nav-btn login-btn me-2">Login</a>
+      <a href="/signup" class="nav-btn register-btn">Register</a>
+    <% } %>
+
   </div>
 </nav>
+
+<!-- ── User pill dropdown script ──────────────────────────── -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const toggle = document.getElementById("userToggle");
+  const menu   = document.getElementById("userMenu");
+  if (!toggle || !menu) return;
+
+  toggle.addEventListener("click", function (e) {
+    e.stopPropagation();
+    const isOpen = menu.classList.toggle("active");
+    toggle.querySelector(".pill-arrow").style.transform = isOpen ? "rotate(90deg)" : "";
+  });
+
+  document.addEventListener("click", function () {
+    menu.classList.remove("active");
+    const arrow = toggle && toggle.querySelector(".pill-arrow");
+    if (arrow) arrow.style.transform = "";
+  });
+});
+</script>
+
+<!-- ── Nav backdrop (for Bootstrap collapse) ──────────────── -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const navCollapse = document.getElementById("navMenu");
+  const backdrop    = document.getElementById("navBackdrop");
+  if (!navCollapse || !backdrop) return;
+
+  navCollapse.addEventListener("show.bs.collapse",  function () { backdrop.classList.add("active"); });
+  navCollapse.addEventListener("hidden.bs.collapse", function () { backdrop.classList.remove("active"); });
+
+  backdrop.addEventListener("click", function () {
+    const bsCollapse = bootstrap.Collapse.getInstance(navCollapse);
+    if (bsCollapse) bsCollapse.hide();
+  });
+});
+</script>

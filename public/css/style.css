@@ -1,437 +1,972 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --primary:             #4f46e5;
+  --accent:              #6366f1;
+  --accent-2:            #7c3aed;
+  --dark:                #111827;
+  --light-bg:            #f5f7fb;
+  --sidebar-w:           260px;
+  --sidebar-w-collapsed: 72px;
+  --navbar-h:            64px;
+  --radius-card:         20px;
+  --transition:          0.3s ease;
+  --sidebar-transition:  width 0.3s ease;
+}
+
+/* ── RESET / BASE ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  background: var(--light-bg);
+  color: var(--dark);
 }
 
-.layout-container {
-  display: flex;
-  align-items: flex-start;
-  width: 100%;
-  min-height: calc(100vh-70px);
-}
-
-.sidebar {
-  width: 260px;
-  background: #ffffff;
-
-  position: sticky;
-  top: 70px;
-  height: calc(100vh - 70px);
-
-  padding: 20px 16px;
-  flex-shrink: 0;
-
+/* ════════════════════════════════════════════════════════════
+   ROOT LAYOUT
+   layout-body → flex column (navbar / app-layout / footer)
+   app-layout  → flex row   (sidebar + main-content)
+   
+   PUSH MECHANISM:
+   Sidebar is IN the flex row. Width change pushes main content.
+   No transform. No fixed on mobile. No margin hacks.
+════════════════════════════════════════════════════════════ */
+.layout-body {
   display: flex;
   flex-direction: column;
-
-  border-right: 1px solid #e9ecef;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.03);
-
-  overflow-y: auto;
-  transition: all 0.3s ease;
+  min-height: 100vh;
 }
 
-#toggleIcon {
-  font-size: 1.4rem;
-  transition: transform 0.35s ease, opacity 0.2s ease;
+.app-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;       /* allows children to scroll independently */
+  overflow: visible;   
+  position: relative;
 }
 
-.toggle-btn.active #toggleIcon {
-  transform: rotate(180deg);
+/* ════════════════════════════════════════════════════════════
+   NAVBAR
+════════════════════════════════════════════════════════════ */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+  height: var(--navbar-h);
+  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    180deg,
+    rgba(99,102,241,0.35),
+    rgba(124,58,237,0.25)
+  );
+  padding: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
 }
 
-/* Collapse */
-.sidebar.collapsed {
-  width: 80px;
-}
-
-/* Toggle */
-.sidebar-toggle {
-  margin-bottom: 25px;
-}
-
-.sidebar.collapsed .toggle-btn {
-  margin: 0 auto;
-}
-
-.toggle-button {
-  width: 42px;
-  height: 42px;
-
+/*
+  FIX 4 — NAVBAR SPACING
+  ──────────────────────
+  BEFORE: .container-fluid had no consistent padding, brand and search
+          were cramped on tablet because gap was uncontrolled.
+  AFTER:  Fixed padding with sidebar-aligned left edge. The left padding
+          matches sidebar-toggle button width so content aligns with
+          sidebar edge visually.
+*/
+.navbar .container-fluid {
+  height: 100%;
+  padding: 0 20px 0 16px;  /* left:16px aligns with sidebar inner padding */
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  border-radius: 10px;
+  gap: 0;                   /* gap controlled by children, not container */
 }
 
-.sidebar-toggle i {
-  font-size: 1.35rem;   /* 🔥 increase size */
-  line-height: 1;
+/* Brand + search group — left side */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;               /* consistent gap between brand and search */
+  flex: 1;
+  min-width: 0;
 }
 
-/* Title */
-.sidebar-title {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #666;
-  margin-bottom: 18px;
-}
-
-/* Links */
-.sidebar-link {
+/* Right side controls */
+.navbar-right {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
+}
 
-  padding: 10px 12px;
-  margin-bottom: 6px;
+/* Sidebar mobile trigger (in navbar) */
+#navSidebarToggle {
+  border: none;
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 6px 9px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+#navSidebarToggle:hover {
+  background: rgba(255,255,255,0.25);
+}
+#navSidebarToggle i {
+  color: #fff;
+  font-size: 1.2rem;
+  display: block;
+  line-height: 1;
+}
 
-  border-radius: 10px;
+.navbar-toggler {
+  border: none;
+  outline: none;
+  box-shadow: none !important;
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 6px 9px;
+}
+.navbar-toggler:focus { box-shadow: none !important; }
+
+/* Brand */
+.brand-logo {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #7c3aed;
   text-decoration: none;
-  color: #444;
+  position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.brand-logo::after {
+  content: "";
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 100%; height: 3px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #fff, #c4b5fd);
+  opacity: 0.6;
+}
 
-  transition: all 0.2s ease;
+/* Search */
+.search-form {
+  flex: 1;
+  max-width: 280px;
+  min-width: 0;
+}
+.search-input {
+  width: 100%;
+  height: 34px;
+  border-radius: 17px;
+  font-size: 0.85rem;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  padding: 0 14px;
+  transition: background var(--transition), box-shadow var(--transition);
+  display: block;
+}
+.search-input:focus {
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+  outline: none;
+}
+
+/* User pill */
+.user-pill {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 30px;
+  gap: 10px;
+  background: rgba(255,255,255,0.9);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: background var(--transition), box-shadow var(--transition);
+  white-space: nowrap;
+}
+.user-pill:hover {
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.avatar-circle {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.username-text { font-size: 14px; font-weight: 600; }
+.dev-badge {
+  font-size: 10px; padding: 3px 7px;
+  border-radius: 6px; background: #111827; color: #fff;
+}
+.pill-arrow {
+  font-size: 1rem;
+  transition: transform 0.2s;
+  color: #64748b;
+}
+
+/* Dropdown */
+.user-dropdown { position: relative; }
+.dropdown-menu-custom {
+  position: absolute;
+  right: 0; top: calc(100% + 8px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  padding: 6px 0;
+  min-width: 140px;
+  opacity: 0; visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+  z-index: 9999;
+}
+.dropdown-menu-custom.active {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.logout-btn {
+  width: 100%; padding: 8px 16px;
+  border: none; background: none;
+  text-align: left; color: #dc2626;
+  font-size: 0.9rem; border-radius: 6px;
+  cursor: pointer; transition: background 0.2s;
+}
+.logout-btn:hover { background: #f3f4f6; }
+
+/* Nav buttons (guest) */
+.nav-btn {
+  padding: 7px 18px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.login-btn {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+.login-btn:hover { background: rgba(255,255,255,0.35); color: #fff; }
+.register-btn { background: #fff; color: var(--primary); }
+.register-btn:hover { opacity: 0.9; }
+
+/* Mobile navbar collapse panel */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    position: absolute;
+    top: calc(var(--navbar-h) + 4px);
+    right: 16px;
+    width: 220px;
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(
+      180deg,
+      rgba(99,102,241,0.96),
+      rgba(124,58,237,0.96)
+    );
+    box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+    z-index: 1100;
+  }
+  .navbar-collapse::before {
+    content: "";
+    position: absolute;
+    top: -7px; right: 18px;
+    width: 14px; height: 14px;
+    background: rgba(99,102,241,0.96);
+    transform: rotate(45deg);
+    border-radius: 2px;
+  }
+  .user-pill {
+    width: 100%;
+    background: rgba(255,255,255,0.9);
+  }
+  .logout-btn {
+    width: 100%; text-align: center;
+    background: rgba(255,255,255,0.2);
+    color: #fff; border-radius: 18px;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.35); }
+  /* Hide search on mobile — it's in the sidebar on mobile */
+  .search-form { display: none !important; }
+}
+
+/* Nav backdrop */
+.nav-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.15);
+  backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+  z-index: 1090;
+}
+.nav-backdrop.active { opacity: 1; pointer-events: auto; }
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR
+   
+   FIX SUMMARY:
+   ─────────────────────────────────────────────────────────
+   REMOVED: sidebar-inner { min-width: var(--sidebar-w) }
+   WHY:     min-width kept inner at 260px when sidebar collapsed
+            to 72px. sidebar { overflow:hidden } clipped it, but
+            the .active link's background was 260px wide — only
+            its left 72px was visible = purple blob artifact.
+   
+   NEW APPROACH:
+   - sidebar-inner { width: 100% } — follows sidebar width exactly
+   - .link-text uses max-width + opacity transition — collapses
+     inline so the icon naturally re-centers via justify-content
+   - No display:none on link-text (would cause instant jump)
+   - Tooltip via [data-tooltip] CSS for collapsed state UX
+   
+   MOBILE:  position:relative, width:0 → flex push, NO fixed/transform
+   DESKTOP: position:sticky, top:navbar-h, height:calc(100vh-navbar-h)
+════════════════════════════════════════════════════════════ */
+.sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(99,102,241,0.1),
+    rgba(124,58,237,0.06)
+  );
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;        /* clips content during width transition */
+  overflow-y: auto;
+
+  transition: var(--sidebar-transition);
+
+  /* ── MOBILE DEFAULT: hidden, in document flow ── */
+  width: 0;
+  position: relative;      /* stays in flex row → enables push */
+  z-index: 1050;
+}
+
+/* ── MOBILE: open via body.sidebar-open ── */
+@media (max-width: 991px) {
+  .sidebar-open .sidebar {
+    width: var(--sidebar-w);
+    position: sticky;
+    top: var(--navbar-h);
+    height: calc(100vh - var(--navbar-h));
+  }
+
+  /* Hide desktop-only toggle on mobile */
+  .sidebar-toggle {
+    display: none;
+  }
+}
+
+/* ── DESKTOP: sticky + collapse ── */
+@media (min-width: 992px) {
+  /*
+    FIX 2 — STICKY SIDEBAR
+    BEFORE: position was relative even on desktop → scrolled with page
+    AFTER:  sticky + align-self:flex-start (REQUIRED for sticky in flex)
+            height constrains scroll to viewport - navbar
+  */
+  .sidebar {
+    width: var(--sidebar-w);
+    position: sticky;
+    top: var(--navbar-h);              /* stick below navbar */
+    height: calc(100vh - var(--navbar-h));
+    align-self: flex-start;            /* CRITICAL — sticky won't work without this */
+    left: 0;
+  }
+
+  /* Desktop collapse toggle: show only on desktop */
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  /*
+    FIX 1 — ICON-ONLY COLLAPSE
+    BEFORE: sidebar-collapsed hid .link-text via display:none
+            → icon snapped to center instantly before width anim finished
+            → sidebar-inner min-width:260px caused active bg blob
+    
+    AFTER:  .link-text collapses via max-width:0 + opacity:0
+            → inline collapse so icon drifts to center smoothly
+            → sidebar-inner width:100% = follows sidebar exactly
+            → no blob because link backgrounds are 100% of sidebar width
+  */
+  .sidebar-collapsed .sidebar {
+    width: var(--sidebar-w-collapsed);
+  }
+
+  /* Icon rotation on collapse toggle button */
+  .sidebar-collapsed #toggleIcon {
+    transform: rotate(180deg);
+  }
+
+  /* Links: center icon, zero out text width smoothly */
+  .sidebar-collapsed .sidebar-link {
+    justify-content: center;
+    padding: 13px 0;       /* remove horizontal padding so icon truly centers */
+    gap: 0;
+  }
+
+  /* Title: collapse height + fade */
+  .sidebar-collapsed .sidebar-title {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* Toggle area: center the button when collapsed */
+  .sidebar-collapsed .sidebar-toggle {
+    justify-content: center;
+    padding: 0;
+  }
+
+  /* Tooltip on collapsed icons */
+  .sidebar-collapsed .sidebar-link[data-tooltip] {
+    position: relative;
+  }
+  .sidebar-collapsed .sidebar-link[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1e293b;
+    color: #f1f5f9;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 7px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .sidebar-collapsed .sidebar-link[data-tooltip]:hover::after {
+    opacity: 1;
+  }
+}
+
+/* ── sidebar-inner ──
+   FIX: width:100% (NOT min-width) — inner always matches sidebar.
+   This is what kills the blob: active link bg = 100% of sidebar,
+   not 260px overflowing a 72px window.
+*/
+.sidebar-inner {
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;             /* follows sidebar width — NO min-width */
+  flex: 1;
+  overflow: hidden;        /* clip overflowing content during transition */
+}
+
+/* Sidebar title */
+.sidebar-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  max-height: 30px;        /* enables max-height collapse */
+  opacity: 1;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease;
+}
+
+/* Collapse toggle button */
+#toggleSidebar {
+  border: none;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 9px 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#toggleSidebar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99,102,241,0.2);
+}
+#toggleIcon {
+  font-size: 1.2rem;
+  transition: transform var(--transition);
+  display: block;
+  line-height: 1;
+}
+
+/* ── Sidebar links ── */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.88rem;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    padding 0.3s ease,
+    justify-content 0s;
+  white-space: nowrap;
+  overflow: hidden;        /* clip text during collapse */
+  margin-bottom: 3px;
+  width: 100%;             /* always fill sidebar width */
 }
 
 .sidebar-link i {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  flex-shrink: 0;          /* NEVER let icon shrink or disappear */
+  width: 20px;             /* fixed icon width for alignment */
+  text-align: center;
+  line-height: 1;
+  display:flex;
+  justify-content:center;
 }
 
-/* Hover */
 .sidebar-link:hover {
-  background: #f4f6f8;
-  color: #000;
+  background: rgba(99,102,241,0.1);
+  color: #111827;
 }
 
-/* Active */
 .sidebar-link.active {
-  background: #111;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
   color: #fff;
+  box-shadow: 0 4px 14px rgba(79,70,229,0.28);
+}
+.sidebar-link.active:hover { background: linear-gradient(135deg, #4f46e5, #6d28d9); }
+
+.sidebar-link.disabled {
+  opacity: 0.38;
+  pointer-events: none;
+  cursor: default;
 }
 
-/* Hide text on collapse */
-.sidebar.collapsed .sidebar-link span,
-.sidebar.collapsed .sidebar-title {
-  display: none;
+/*
+  link-text: THE KEY TO SMOOTH ICON-ONLY COLLAPSE
+  ─────────────────────────────────────────────────
+  max-width animates 200px → 0   (collapses text inline)
+  opacity   animates 1 → 0       (fades out visually)
+  overflow: hidden               (clips text during animation)
+  
+  Result: text shrinks FROM THE RIGHT, icon stays left-aligned,
+  then justify-content:center kicks in naturally as text reaches 0.
+*/
+.link-text {
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 200px;
+  opacity: 1;
+  transition:
+    max-width 0.3s ease,
+    opacity 0.2s ease;
 }
 
-/* Mobile Auto Collapse */
-@media (max-width: 992px) {
-  .sidebar {
-    position: fixed;
-    left: -260px;
-    top: 70px;
-    z-index: 1000;
-  }
-
-  .sidebar.show {
-    left: 0;
-  }
+.sidebar-collapsed .link-text {
+  max-width: 0;
+  opacity: 0;
 }
 
-
+/* ════════════════════════════════════════════════════════════
+   MAIN CONTENT
+════════════════════════════════════════════════════════════ */
 .main-content {
   flex: 1;
-  padding:30px;
-  background-color: #f8f9fa;
-  overflow-y: auto;
-
+  min-width: 0;          /* allows flex child to shrink below content size */
+  overflow-x: hidden;
+  position: relative;
+  z-index: 1;
 }
 
-.navbar {
-  /* width: 100%; */
-  border-bottom: 1px solid #eee;
-  background-color: #ffffff !important;
-  padding: 12px 0;
+.page-wrapper {
+  padding: 28px 24px;
+  width: 100%;
 }
 
-.container {
-  width: 95%;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* Auth layout — no sidebar */
+.auth-layout { width:100%;}
 
-.nav-right a {
-  color: white;
-  text-decoration: none;
-  margin-left: 10px;
-}
-.nav-link.active {
-   color: black !important;
-}
-
-.nav-left a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-/* Brand */
-.navbar-brand {
-  font-size: 1.25rem;
-  letter-spacing: 0.5px;
-}
-
-/* Nav links */
-.navbar .nav-link {
-  color: #444 !important;
-  transition: 0.2s ease;
-}
-
-.navbar .nav-link:hover {
-  color: #000 !important;
-}
-
-.navbar .nav-link.active {
-  border-bottom: 2px solid black;
-}
-
-.navbar form input[type="search"] {
-  border-radius: 20px;
-  padding-left: 12px;
-  min-width: 180px;
-}
-
-/* Right side buttons */
-.navbar .btn-sm {
-  border-radius: 20px;
-  padding: 4px 12px;
-}
-
-/* DEV badge */
-.navbar .badge {
-  font-size: 0.65rem;
-  padding: 5px 8px;
-}
-
-/* Fix collapse spacing on mobile */
-@media (max-width: 991px) {
-  .navbar-collapse {
-    margin-top: 10px;
-  }
-
-   .navbar form {
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 1000px) {
-  #sidebar {
-    position: fixed;
-    left: -260px;
-    transition: 0.3s ease;
-  }
-
-  #sidebar.show {
-    left: 0;
-  }
-}
-
-
-/* Username text */
-.navbar .fw-semibold {
-  color: #222;
-}
-
-.explore-section {
-  margin-bottom: 30px;
-}
-
-.explore-section h1 {
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.explore-section p {
-  color: #666;
-}
-
-/* Footer */
+/* ════════════════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════════════════ */
 footer {
   background: #111;
   color: #bbb;
   text-align: center;
   padding: 18px;
+  flex-shrink: 0;
 }
 
-.listing-card {
-    transition: all 0.25s ease;
-    border-radius: 14px;
-    overflow: hidden;
+/* ════════════════════════════════════════════════════════════
+   LISTINGS PAGE
+════════════════════════════════════════════════════════════ */
+.listings-page {
+  padding: 32px 28px 60px;
+  font-family: 'DM Sans', sans-serif;
 }
 
-.listing-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.08);
-}
-
-.card-img-top{
-   height:250px;
-   object-fit:cover;
-   border-radius:12px;
-}
-
-.img-wrapper {
-    height: 230px;
-    overflow: hidden;
-}
-
-.img-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-}
-
-.listing-card:hover img {
-    transform: scale(1.05);
-}
-
-#map {
-   height: 350px;
-   width: 100%;
-   border-radius: 12px;
-   overflow:hidden;
-   box-shadow:0 10px 25px rgba(0,0,0,0.15);
-   margin-top:20px;
-   background: #eee;
-}
-
-.inline-toast {
-  margin-bottom: 14px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  backdrop-filter: blur(6px);
-  background: rgba(16, 185, 129, 0.12);
-  color: #065f46;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  opacity: 0;
-  transform: translateY(-8px);
-  animation: slideDown 0.35s ease forwards;
-}
-
-.inline-toast.error {
-  background: rgba(239, 68, 68, 0.12);
-  color: #7f1d1d;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  animation: slideDown 0.35s ease forwards, shake 0.4s ease;
-}
-
-@keyframes slideDown {
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  50% { transform: translateX(4px); }
-  75% { transform: translateX(-3px); }
-  100% { transform: translateX(0); }
-}
-
-.booking-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-  transition: 0.25s ease;
-}
-
-.booking-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 32px rgba(0,0,0,0.08);
-}
-
-.booking-header{
-  font-size: 1.25rem;
-  font-weight: 600;
+/* Header */
+.listings-header {
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
 }
-
-.booking-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.booking-meta {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 14px 40px;
-  margin-bottom: 22px;
-}
-
-.booking-meta small {
+.header-eyebrow {
   display: block;
-  font-size: 13px;
-  color: #777;
-  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
 }
-
-.booking-meta strong {
-  font-size: 15px;
-  font-weight: 500;
+.header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.1;
+  margin: 0 0 8px;
 }
-
-.status-pill {
-  padding: 6px 14px;
+.title-accent { color: var(--accent); font-style: italic; }
+.header-sub { color: #64748b; font-size: 0.95rem; margin: 0; }
+.listing-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #f1f0ff;
+  color: var(--primary);
+  padding: 8px 16px;
   border-radius: 50px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: capitalize;
-  background: rgba(107, 114, 128, 0.15);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid #e0e7ff;
 }
 
-.status-pill.confirmed {
-  background: rgba(16, 185, 129, 0.15);
-  color: #065f46;
-}
-
-.status-pill.cancelled {
-  background: rgba(239, 68, 68, 0.15);
-  color: #7f1d1d;
-}
-
-.booking-actions {
+/* Filter bar */
+.filter-bar {
   display: flex;
-  justify-content: flex-end;
   gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.filter-chip {
+  padding: 7px 18px;
+  border-radius: 50px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+}
+.filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+.filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 80px 20px; color: #94a3b8; }
+.empty-icon { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.4; }
+.empty-state h3 { font-family: 'Playfair Display', serif; color: #334155; margin-bottom: 8px; }
+.empty-state p { margin-bottom: 24px; }
+
+/* Grid */
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 28px;
 }
 
-.delete-btn {
-  background: transparent;
-  border: 1px solid #ddd;
-  padding: 6px 16px;
-  font-size: 13px;
-  border-radius: 6px;
-  transition: 0.2s ease;
+/* ── listing-card ── */
+.listing-card {
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06);
+  transition:
+    transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
+    box-shadow 0.3s ease;
+  opacity: 0;
+  animation: cardIn 0.5s ease forwards;
+}
+.listing-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 24px 48px rgba(99,102,241,0.14);
+}
+.listing-card.filtered-out { display: none; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.delete-btn:hover {
-  background: rgba(0,0,0,0.05);
+/* Card image */
+.card-image-wrap {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: #f1f5f9;
 }
+.card-img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.5s ease;
+}
+.listing-card:hover .card-img { transform: scale(1.07); }
+.card-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.55) 0%,
+    rgba(0,0,0,0.1) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.card-badges-tr { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
+.card-badges-tl { position: absolute; top: 12px; left: 12px;  display: flex; gap: 6px; }
+.img-count-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+  color: #fff; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 50px;
+}
+.verified-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(16,185,129,0.85); backdrop-filter: blur(6px);
+  color: #fff; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 50px;
+}
+
+/* Price pill */
+.price-pill {
+  position: absolute; bottom: 14px; left: 14px;
+  display: inline-flex; align-items: baseline; gap: 3px;
+  background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
+  padding: 5px 12px; border-radius: 50px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+.price-currency { font-size: 12px; font-weight: 700; color: var(--accent); }
+.price-value { font-size: 16px; font-weight: 800; color: #0f172a; font-family: 'Playfair Display', serif; }
+.price-unit { font-size: 11px; color: #64748b; font-weight: 500; }
+
+/* Card body */
+.card-body-inner { padding: 18px 20px 20px; }
+.card-listing-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700; color: #0f172a;
+  margin: 0 0 6px; line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-location {
+  font-size: 0.8rem; color: #94a3b8;
+  margin: 0 0 16px;
+  display: flex; align-items: center; gap: 4px;
+}
+.card-location i { font-size: 0.78rem; color: var(--accent); }
+.card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Action buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Legacy variants (other views) */
+.primary-btn  { background: #111827; color: #fff; }
+.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.2); color: #fff; }
+.reserve-btn  { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+.reserve-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(79,70,229,0.3); color: #fff; }
+.edit-btn     { background: #f3f4f6; color: #374151; }
+.edit-btn:hover { background: #e5e7eb; }
+.delete-btn   { background: #fee2e2; color: #dc2626; }
+.delete-btn:hover { background: #fecaca; }
+
+/* New semantic variants (index.ejs) */
+.btn-view { background: #f8fafc; color: #334155; border: 1.5px solid #e2e8f0; flex: 1; }
+.btn-view:hover { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1; transform: translateY(-1px); }
+.btn-reserve {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff; flex: 1;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+.btn-reserve:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff; transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+}
+.btn-edit { background: #f0fdf4; color: #166534; border: 1.5px solid #bbf7d0; }
+.btn-edit:hover { background: #dcfce7; transform: translateY(-1px); }
+.btn-delete { background: #fff1f2; color: #be123c; border: 1.5px solid #fecdd3; }
+.btn-delete:hover { background: #ffe4e6; transform: translateY(-1px); }
+
+/* Legacy card */
+.img-wrapper { height: 220px; overflow: hidden; }
+.img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.listing-card:hover .img-wrapper img { transform: scale(1.06); }
+.card-title { font-size: 1rem; letter-spacing: 0.3px; }
+.price { font-weight: 700; color: var(--primary); }
+.explore-section { margin-bottom: 28px; }
+.section-title { font-weight: 800; font-size: 1.7rem; letter-spacing: 0.4px; }
+
+/* ════════════════════════════════════════════════════════════
+   MAP
+════════════════════════════════════════════════════════════ */
+#map {
+  height: 350px; width: 100%;
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  margin-top: 20px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   BOOKINGS
+════════════════════════════════════════════════════════════ */
+
+
+.bookings-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+.booking-card {
+  background: #fff; border-radius: 16px; padding: 26px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06); transition: 0.25s;
+}
+.booking-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,0.08); }
+.booking-header {
+  font-size: 1.15rem; font-weight: 600;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.booking-meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 36px; margin-bottom: 20px;
+}
+.booking-meta small { display: block; font-size: 12px; color: #777; margin-bottom: 3px; }
+.booking-meta strong { font-size: 14px; font-weight: 500; }
+.status-pill { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: 600; }
+.status-pill.confirmed { background: rgba(16,185,129,0.12); color: #065f46; }
+.status-pill.cancelled { background: rgba(239,68,68,0.12); color: #7f1d1d; }
+.booking-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
 .cancel-btn {
-  background: transparent;
-  border: 1px solid #ddd;
-  padding: 6px 16px;
-  font-size: 13px;
-  border-radius: 6px;
-  transition: 0.2s ease;
+  background: transparent; border: 1px solid #ddd;
+  padding: 6px 16px; font-size: 13px; border-radius: 6px; cursor: pointer;
 }
 
+.sticky-booking{
+  position: sticky;
+  top: calc(var(--navbar-h) + 16px);
+}
+
+/* ════════════════════════════════════════════════════════════
+   AUTH
+════════════════════════════════════════════════════════════ */
+.auth-page {
+  min-height: calc(100vh - var(--navbar-h) - 60px);
+  display: flex; justify-content: center; align-items: center; padding: 24px;
+}
+.auth-card {
+  width: 100%; max-width: 480px; border-radius: 18px; border: none;
+  padding: 40px; background: #fff; box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+}
+.auth-btn {
+  width: 100%; padding: 11px 16px; border: none; border-radius: 10px;
+  background: #6366f1; color: #fff; font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.auth-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(79,70,229,0.25); }
+
+/* ════════════════════════════════════════════════════════════
+   TOASTS
+════════════════════════════════════════════════════════════ */
+.inline-toast {
+  margin-bottom: 14px; padding: 12px 16px;
+  border-radius: 8px; font-size: 14px; font-weight: 500;
+  background: rgba(16,185,129,0.1); color: #065f46;
+  border: 1px solid rgba(16,185,129,0.25);
+  animation: slideDown 0.35s ease forwards;
+}
+.inline-toast.error {
+  background: rgba(239,68,68,0.1); color: #7f1d1d;
+  border-color: rgba(239,68,68,0.25);
+  animation: slideDown 0.35s ease forwards, shake 0.4s ease;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .page-wrapper { padding: 20px 16px; }
+  .section-title { font-size: 1.4rem; }
+  .bookings-container { grid-template-columns: 1fr; }
+  .listings-page { padding: 20px 16px 40px; }
+  .listings-grid { grid-template-columns: 1fr; gap: 20px; }
+  .listings-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .listings-grid { grid-template-columns: repeat(2, 1fr); }
+  /* Tablet: sidebar push still works, no sticky */
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  .listings-grid { grid-template-columns: repeat(2, 1fr); }
+  .search-form { max-width: 200px; }
+}

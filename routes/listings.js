@@ -5,25 +5,29 @@ const router = express.Router();
 const Listing = require('../models/listing');
 const upload = require("../utils/multer");
 const { isLoggedIn, isOwner } = require("../middleware");
-// const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 
 // const mapToken = process.env.MAP_TOKEN;
 // const geocoder = mbxGeocoding({ accessToken: mapToken });
 
 
 
-router.get("/", async (req,res)=>{
-   let { search } = req.query;
-   let filter = {};
+router.get("/", async (req, res) => {
 
-   if(search){
-      filter.title = { $regex: search, $options: "i" };
-   }
+  const { search } = req.query;
 
-   let allListings = await Listing.find(filter).populate("owner");
+  let allListings;
 
-   res.render("listings/index",{ allListings });
+  if (search) {
+    allListings = await Listing.find({
+      title: { $regex: search, $options: "i" }
+    });
+  } else {
+    allListings = await Listing.find({});
+  }
+
+  res.render("listings/index", { allListings });
 });
+
 
 
 // New listing form
@@ -105,7 +109,8 @@ router.get("/:id",isLoggedIn, async (req, res) => {
         const { id } = req.params;
         const listing = await Listing.findById(id).populate("owner");
         const reservedSuccess = req.query.reserved === "true";
-        res.render("listings/show.ejs", { listing, reservedSuccess });
+        const showReserve = req.query.reserve === "true";   
+        res.render("listings/show.ejs", { listing, reservedSuccess, showReserve });
     } catch (err) {
         console.log(err);
         res.send("Error fetching listing");
