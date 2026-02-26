@@ -1,5 +1,46 @@
-<footer class="bg-light text-center mt-5 py-3 border-top sticky-bottom">
-    <small class="text-muted">
-        <p>© 2026 StayNest | Developed by Mr.A</p>
-    </small>
+<%# ─────────────────────────────────────────────────────────
+    FOOTER — includes/footer.ejs
+    Theme: StayNest indigo/violet — matches navbar gradient
+    Bootstrap usage: ZERO utility classes (all custom CSS)
+    Class: .site-footer (scoped, no conflicts)
+    ───────────────────────────────────────────────────────── %>
+
+<footer class="site-footer">
+
+  <div class="footer-inner">
+
+    <!-- Brand column -->
+    <div class="footer-brand">
+      <a href="/listings" class="footer-logo">StayNest</a>
+      <p class="footer-tagline">Find places that feel like home.</p>
+    </div>
+
+    <!-- Links column -->
+    <div class="footer-links">
+      <span class="footer-links-label">Explore</span>
+      <nav class="footer-nav">
+        <a href="/listings"    class="footer-link">All Stays</a>
+        <a href="/listings/new" class="footer-link">Add Stay</a>
+        <a href="/my-bookings" class="footer-link">My Bookings</a>
+      </nav>
+    </div>
+
+    <!-- Legal column -->
+    <div class="footer-legal-col">
+      <span class="footer-links-label">Legal</span>
+      <nav class="footer-nav">
+        <a href="#" class="footer-link">Privacy Policy</a>
+        <a href="#" class="footer-link">Terms of Use</a>
+      </nav>
+    </div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 StayNest</span>
+    <span class="footer-sep">·</span>
+    <span class="footer-credit">Developed by <strong>Mr.A</strong></span>
+  </div>
+
 </footer>

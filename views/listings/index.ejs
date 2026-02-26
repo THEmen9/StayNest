@@ -123,10 +123,6 @@
 
           <%
             /*
-              BUG FIX: Original code placed Reserve OUTSIDE the isOwner
-              conditional but inside the same button row — so owners saw
-              View + Edit + Delete + Reserve (4 buttons).
-              Non-owners saw View + Reserve (correct).
               Fix: Reserve is now explicitly in the else branch.
             */
           %>

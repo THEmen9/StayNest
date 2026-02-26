@@ -1,32 +1,139 @@
+
 <div class="auth-page">
+  <div class="auth-container" id="authContainer">
 
-  <div class="auth-card card p-4 shadow-sm">
+    <%# ─── SIGN-IN FORM ─── %>
+    <div class="auth-form-container auth-sign-in">
+      <div class="auth-form-inner">
+        <h1>Sign In</h1>
 
-    <h3 class="mb-4 text-center">Sign Up</h3>
+        <div class="auth-social-row">
+          <button type="button" class="auth-social-btn" title="Facebook">f</button>
+          <button type="button" class="auth-social-btn" title="Google">G</button>
+          <button type="button" class="auth-social-btn" title="LinkedIn">in</button>
+        </div>
 
-    <form action="/signup" method="POST">
+        <p class="auth-divider">or use your account</p>
 
-      <div class="mb-3">
-        <label class="form-label">Username</label>
-        <input type="text" name="username" class="form-control" required>
+        <form action="/login" method="POST" style="width:100%;">
+          <div class="mb-3">
+            <input
+              type="text"
+              name="username"
+              class="form-control"
+              placeholder="Username"
+              required>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="password"
+              name="password"
+              class="form-control"
+              placeholder="Password"
+              required>
+          </div>
+
+          <a href="/login" class="auth-forgot">Forgot your password?</a>
+
+          <button type="submit" class="auth-btn">Sign In</button>
+        </form>
       </div>
+    </div>
 
-      <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" name="email" class="form-control" required>
+    <%# ─── SIGN-UP FORM (visible by default on this page) ─── %>
+    <div class="auth-form-container auth-sign-up">
+      <div class="auth-form-inner">
+        <h1>Create Account</h1>
+
+        <div class="auth-social-row">
+          <button type="button" class="auth-social-btn" title="Facebook">f</button>
+          <button type="button" class="auth-social-btn" title="Google">G</button>
+          <button type="button" class="auth-social-btn" title="LinkedIn">in</button>
+        </div>
+
+        <p class="auth-divider">or use your email for registration</p>
+
+        <form action="/signup" method="POST" style="width:100%;" id="signupForm">
+          <div class="mb-3">
+            <input
+              type="text"
+              name="username"
+              class="form-control"
+              placeholder="Full Name"
+              required>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="email"
+              name="email"
+              class="form-control"
+              placeholder="Email Address"
+              required>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="password"
+              name="password"
+              class="form-control"
+              placeholder="Password"
+              required>
+          </div>
+
+          <button type="submit" class="auth-btn">Sign Up</button>
+        </form>
       </div>
+    </div>
 
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" name="password" class="form-control" required>
+    <%# ─── SLIDING OVERLAY ─── %>
+    <div class="auth-overlay-container">
+      <div class="auth-overlay">
+
+        <div class="auth-overlay-panel auth-overlay-left">
+          <h1>Welcome Back!</h1>
+          <p>Stay connected by logging in with your credentials and continue your experience</p>
+          <button class="auth-ghost-btn" id="signInBtn">Sign In</button>
+        </div>
+
+        <div class="auth-overlay-panel auth-overlay-right">
+          <h1>Hey There!</h1>
+          <p>Begin your amazing journey by creating an account with us today</p>
+          <button class="auth-ghost-btn" id="signUpBtn">Sign Up</button>
+        </div>
+
       </div>
-
-      <button type="submit" class="auth-btn">
-        Register
-      </button>
-
-    </form>
+    </div>
 
   </div>
-
 </div>
+
+<script>
+(function () {
+  const container = document.getElementById("authContainer");
+  const signUpBtn = document.getElementById("signUpBtn");
+  const signInBtn = document.getElementById("signInBtn");
+
+  /* This is the signup page — activate signup panel immediately */
+  container.classList.add("right-panel-active");
+
+  if (signUpBtn) signUpBtn.addEventListener("click", function () {
+    container.classList.add("right-panel-active");
+  });
+  if (signInBtn) signInBtn.addEventListener("click", function () {
+    container.classList.remove("right-panel-active");
+  });
+
+  /* Loading state on submit */
+  const form = document.getElementById("signupForm");
+  if (form) {
+    form.addEventListener("submit", function () {
+      const btn = this.querySelector(".auth-btn");
+      if (!btn) return;
+      btn.classList.add("loading");
+      btn.textContent = "Creating account…";
+    });
+  }
+}());
+</script>

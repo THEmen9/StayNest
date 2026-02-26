@@ -48,15 +48,16 @@
     const navbarBtn   = document.getElementById("navSidebarToggle"); // mobile only (in navbar)
     const savedState  = localStorage.getItem("sidebarState");
 
-    if(savedState === "collapsed" && window.innerWidth >= 992){
-      body.classList.add("sidebar-collapsed");
-    }
-
-    if (!sidebar) return; // no sidebar = no logic needed
 
     // ── Breakpoint helper ─────────────────────────────────────
 
     const isMobile = () => window.innerWidth <= 991;
+
+    // ✅ restore collapsed state (desktop only)
+
+    if (!isMobile() && localStorage.getItem("sn_sidebar_collapsed") === "1") {
+      body.classList.add("sidebar-collapsed");
+    }
 
     // ── Mobile open/close ─────────────────────────────────────
     function openSidebar()  {
@@ -70,14 +71,21 @@
 
     // ── Desktop collapse ──────────────────────────────────────
     function toggleDesktop() {
-      body.classList.toggle("sidebar-collapsed");
+    const collapsed = body.classList.toggle("sidebar-collapsed"); // addition 1
 
-      if(body.classList.contains("sidebar-collapsed")){
-      localStorage.setItem("sidebarState","collapsed");
-      }else{
-        localStorage.setItem("sidebarState","expanded");
-      }
+    // NEW primary key
+    if (collapsed) {
+      localStorage.setItem("sn_sidebar_collapsed", "1");
+    } else {
+      localStorage.removeItem("sn_sidebar_collapsed");
     }
+
+    // keep your existing key (minimal change)
+    localStorage.setItem("sidebarState", collapsed ? "collapsed" : "expanded"); // addition 2
+
+    // stability helper (prevents redirect flicker)
+    body.dataset.sidebar = collapsed ? "collapsed" : "expanded"; // addition 3
+  }
 
     // ── Bind navbar button (mobile toggle) ───────────────────
     if (navbarBtn) {
@@ -126,11 +134,6 @@
 
   }());
   </script>
-
-  <!--
-    NOTE: navbar.ejs has its own <script> for userMenu dropdown.
-    Keep that. Remove the old sidebar toggle script from navbar.ejs.
-  -->
 
 </body>
 </html>
