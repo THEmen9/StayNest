@@ -72,7 +72,7 @@ app.use(methodOverride("_method"));
 // ─── Session Store ────────────────────────────────────────────────────────────
 const store = MongoStore.create({
   mongoUrl: process.env.MONGO_URL,
-  dbName: "staynest",                        // explicit — never falls back to "test"
+  dbName: "locara",                        // explicit — never falls back to "test"
   crypto: {
     secret: process.env.SESSION_SECRET,
   },
